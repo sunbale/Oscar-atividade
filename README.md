@@ -265,4 +265,1274 @@ R:  ano_cerimonia: 1928,
 R: 1357
 db.oscar.distinct("nome_do_filme", { vencedor: 1 }).length
 
+Nível 5: Análise de Indicações
+# 5.1 Quais atores/atrizes foram indicados mais de uma vez? Liste o nome e o número de indicações.
+R:  _id: 'Meryl Streep',
+  indicacoes: 21
+   _id: 'Katharine Hepburn',
+  indicacoes: 12
+   _id: 'Jack Nicholson',
+  indicacoes: 12
+    _id: 'Bette Davis',
+  indicacoes: 11
+    _id: 'Paul Newman',
+  indicacoes: 9
+   _id: 'Laurence Olivier',
+  indicacoes: 9
+   _id: 'Denzel Washington',
+  indicacoes: 9
+   _id: 'Al Pacino',
+  indicacoes: 9
+   _id: 'Spencer Tracy',
+  indicacoes: 9
+    _id: 'Cate Blanchett',
+  indicacoes: 8
+  _id: 'Glenn Close',
+  indicacoes: 8
+  _id: 'Jack Lemmon',
+  indicacoes: 8
+    _id: 'Judi Dench',
+  indicacoes: 8
+    _id: 'Geraldine Page',
+  indicacoes: 8
+  _id: 'Marlon Brando',
+  indicacoes: 8
+    _id: "Peter O'Toole",
+  indicacoes: 8
+    _id: 'Robert De Niro',
+  indicacoes: 8
+  _id: 'Leonardo DiCaprio',
+  indicacoes: 7
+    _id: 'Greer Garson',
+  indicacoes: 7
+    _id: 'Dustin Hoffman',
+  indicacoes: 7
 
+  db.oscar.aggregate([
+  { $match: { categoria: /^ACT(OR|RESS)/ } },
+  { $group: { _id: "$nome_do_indicado", indicacoes: { $sum: 1 } } },
+  { $match: { indicacoes: { $gt: 1 } } },
+  { $sort: { indicacoes: -1 } }
+])
+
+# 5.2 Qual ator ou atriz tem o maior número de indicações na história do Oscar?
+R: _id: 'Meryl Streep',
+  indicacoes: 21
+
+  db.oscar.aggregate([
+  { $match: { categoria: /^ACT(OR|RESS)/ } },
+  { $group: { _id: "$nome_do_indicado", indicacoes: { $sum: 1 } } },
+  { $sort: { indicacoes: -1 } },
+  { $limit: 5 }
+])
+
+# 5.3 Quais atores foram indicados mais de 3 vezes, mas nunca ganharam?
+R:  _id: "Peter O'Toole",
+  indicacoes: 8,
+  vitorias: 0
+   _id: 'Richard Burton',
+  indicacoes: 7,
+  vitorias: 0
+    _id: 'Albert Finney',
+  indicacoes: 5,
+  vitorias: 0
+    _id: 'Bradley Cooper',
+  indicacoes: 5,
+  vitorias: 0
+    _id: 'Arthur Kennedy',
+  indicacoes: 5,
+  vitorias: 0
+    _id: 'Mickey Rooney',
+  indicacoes: 4,
+  vitorias: 0
+    _id: 'Montgomery Clift',
+  indicacoes: 4,
+  vitorias: 0
+   _id: 'Charles Boyer',
+  indicacoes: 4,
+  vitorias: 0
+   _id: 'Mark Ruffalo',
+  indicacoes: 4,
+  vitorias: 0
+   _id: 'Edward Norton',
+  indicacoes: 4,
+  vitorias: 0
+  _id: 'Ed Harris',
+  indicacoes: 4,
+  vitorias: 0
+   _id: 'Claude Rains',
+  indicacoes: 4,
+  vitorias: 0
+   _id: 'Willem Dafoe',
+  indicacoes: 4,
+  vitorias: 0
+   _id: 'Warren Beatty',
+  indicacoes: 4,
+  vitorias: 0
+
+  db.oscar.aggregate([
+  { $match: { categoria: /^ACTOR|^ACTOR IN/ } },
+  { $group: { _id: "$nome_do_indicado", indicacoes: { $sum: 1 }, vitorias: { $sum: "$vencedor" } } },
+  { $match: { indicacoes: { $gt: 3 }, vitorias: 0 } },
+  { $sort: { indicacoes: -1 } }
+])
+
+
+# 5.4 Encontre todos os artistas que foram indicados em categorias diferentes (ex: ator e diretor).
+R:  _id: 'Metro-Goldwyn-Mayer',
+  categorias: [
+    'SPECIAL EFFECTS',
+    'BEST MOTION PICTURE',
+    'DOCUMENTARY (Short Subject)',
+    'UNIQUE AND ARTISTIC PICTURE',
+    'OUTSTANDING MOTION PICTURE',
+    'OUTSTANDING PICTURE',
+    'SHORT SUBJECT (Two-reel)',
+    'SHORT SUBJECT (One-reel)',
+    'SHORT SUBJECT (Novelty)',
+    'OUTSTANDING PRODUCTION',
+    'SHORT SUBJECT (Cartoon)'
+  ],
+  qtd_categorias: 11
+
+   _id: 'Sinners',
+  categorias: [
+    'WRITING (Original Screenplay)',
+    'MAKEUP AND HAIRSTYLING',
+    'COSTUME DESIGN',
+    'BEST PICTURE',
+    'CINEMATOGRAPHY',
+    'SOUND',
+    'PRODUCTION DESIGN',
+    'VISUAL EFFECTS',
+    'FILM EDITING',
+    'CASTING'
+  ],
+  qtd_categorias: 10
+
+    _id: 'Warner Bros.',
+  categorias: [
+    'SHORT SUBJECT (Color)',
+    'BEST MOTION PICTURE',
+    'DOCUMENTARY (Short Subject)',
+    'SHORT SUBJECT (Comedy)',
+    'SPECIAL AWARD',
+    'OUTSTANDING MOTION PICTURE',
+    'SHORT SUBJECT (Two-reel)',
+    'SHORT SUBJECT (One-reel)',
+    'OUTSTANDING PRODUCTION',
+    'SHORT SUBJECT (Cartoon)'
+  ],
+  qtd_categorias: 10
+
+    _id: 'Wicked',
+  categorias: [
+    'MAKEUP AND HAIRSTYLING',
+    'COSTUME DESIGN',
+    'SOUND',
+    'BEST PICTURE',
+    'PRODUCTION DESIGN',
+    'VISUAL EFFECTS',
+    'FILM EDITING',
+    'MUSIC (Original Score)'
+  ],
+  qtd_categorias: 8
+
+    _id: 'Paramount',
+  categorias: [
+    'SHORT SUBJECT (Cartoon)',
+    'SHORT SUBJECT (Color)',
+    'BEST MOTION PICTURE',
+    'DOCUMENTARY (Short Subject)',
+    'OUTSTANDING MOTION PICTURE',
+    'SHORT SUBJECT (One-reel)',
+    'OUTSTANDING PRODUCTION',
+    'SPECIAL EFFECTS'
+  ],
+  qtd_categorias: 8
+
+    _id: 'Emilia Pérez',
+  categorias: [
+    'MAKEUP AND HAIRSTYLING',
+    'INTERNATIONAL FEATURE FILM',
+    'SOUND',
+    'CINEMATOGRAPHY',
+    'WRITING (Adapted Screenplay)',
+    'BEST PICTURE',
+    'FILM EDITING',
+    'MUSIC (Original Score)'
+  ],
+  qtd_categorias: 8
+
+   _id: 'Frankenstein',
+  categorias: [
+    'COSTUME DESIGN',
+    'SOUND',
+    'CINEMATOGRAPHY',
+    'BEST PICTURE',
+    'PRODUCTION DESIGN',
+    'WRITING (Adapted Screenplay)',
+    'MAKEUP AND HAIRSTYLING'
+  ],
+  qtd_categorias: 7
+
+   _id: 'RKO Radio',
+  categorias: [
+    'BEST MOTION PICTURE',
+    'DOCUMENTARY (Short Subject)',
+    'OUTSTANDING MOTION PICTURE',
+    'SHORT SUBJECT (Comedy)',
+    'SHORT SUBJECT (Two-reel)',
+    'SHORT SUBJECT (One-reel)',
+    'OUTSTANDING PRODUCTION'
+  ],
+  qtd_categorias: 7
+
+   _id: 'Marty Supreme',
+  categorias: [
+    'COSTUME DESIGN',
+    'WRITING (Original Screenplay)',
+    'BEST PICTURE',
+    'CINEMATOGRAPHY',
+    'PRODUCTION DESIGN',
+    'FILM EDITING',
+    'CASTING'
+  ],
+  qtd_categorias: 7
+
+    _id: 'Alex North',
+  categorias: [
+    'MUSIC (Original Music Score)',
+    'MUSIC (Original Score--for a motion picture [not a musical])',
+    'MUSIC (Music Score--substantially original)',
+    'MUSIC (Original Dramatic Score)',
+    'MUSIC (Music Score of a Dramatic or Comedy Picture)',
+    'HONORARY AWARD',
+    'MUSIC (Original Score)'
+  ],
+  qtd_categorias: 7
+
+    _id: 'One Battle After Another',
+  categorias: [
+    'BEST PICTURE',
+    'CINEMATOGRAPHY',
+    'WRITING (Adapted Screenplay)',
+    'SOUND',
+    'PRODUCTION DESIGN',
+    'FILM EDITING',
+    'CASTING'
+  ],
+  qtd_categorias: 7
+
+   _id: 'Walt Disney, Producer',
+  categorias: [
+    'DOCUMENTARY',
+    'SHORT SUBJECT (Cartoon)',
+    'SHORT SUBJECT (Live Action)',
+    'DOCUMENTARY (Feature)',
+    'DOCUMENTARY (Short Subject)',
+    'SHORT SUBJECT (Two-reel)'
+  ],
+  qtd_categorias: 6
+
+    _id: 'Alfred Newman',
+  categorias: [
+    'MUSIC (Scoring of a Musical Picture)',
+    'MUSIC (Original Score)',
+    'MUSIC (Music Score of a Dramatic Picture)',
+    'MUSIC (Music Score--substantially original)',
+    'MUSIC (Music Score of a Dramatic or Comedy Picture)',
+    'MUSIC (Scoring)'
+  ],
+  qtd_categorias: 6
+
+   _id: 'Conclave',
+  categorias: [
+    'COSTUME DESIGN',
+    'PRODUCTION DESIGN',
+    'WRITING (Adapted Screenplay)',
+    'MUSIC (Original Score)',
+    'FILM EDITING',
+    'BEST PICTURE'
+  ],
+  qtd_categorias: 6
+
+   _id: 'The Brutalist',
+  categorias: [
+    'FILM EDITING',
+    'BEST PICTURE',
+    'MUSIC (Original Score)',
+    'WRITING (Original Screenplay)',
+    'PRODUCTION DESIGN',
+    'CINEMATOGRAPHY'
+  ],
+  qtd_categorias: 6
+
+    _id: 'Ingmar Bergman',
+  categorias: [
+    'DIRECTING',
+    'IRVING G. THALBERG MEMORIAL AWARD',
+    'WRITING (Story and Screenplay--written directly for the screen)',
+    'WRITING (Story and Screenplay--based on factual material or material not previously published or produced)',
+    'WRITING (Screenplay Written Directly for the Screen)'
+  ],
+  qtd_categorias: 5
+
+   _id: '20th Century-Fox',
+  categorias: [
+    'SHORT SUBJECT (Cartoon)',
+    'OUTSTANDING PRODUCTION',
+    'OUTSTANDING MOTION PICTURE',
+    'SHORT SUBJECT (One-reel)',
+    'BEST MOTION PICTURE'
+  ],
+  qtd_categorias: 5
+
+    _id: 'John Williams',
+  categorias: [
+    'MUSIC (Original Dramatic Score)',
+    'MUSIC (Original Score--for a motion picture [not a musical])',
+    'MUSIC (Original Score)',
+    'MUSIC (Original Musical or Comedy Score)',
+    'MUSIC (Scoring of Music--adaptation or treatment)'
+  ],
+  qtd_categorias: 5
+
+   _id: 'Jerry Goldsmith',
+  categorias: [
+    'MUSIC (Original Music Score)',
+    'MUSIC (Original Score)',
+    'MUSIC (Original Dramatic Score)',
+    'MUSIC (Original Score--for a motion picture [not a musical])',
+    'MUSIC (Music Score--substantially original)'
+  ],
+  qtd_categorias: 5
+
+    _id: 'Robert Benton',
+  categorias: [
+    'WRITING (Screenplay Written Directly for the Screen--based on factual material or on story material not previously published or produced)',
+    'WRITING (Screenplay Based on Material from Another Medium)',
+    'WRITING (Screenplay Written Directly for the Screen)',
+    'WRITING (Screenplay Based on Material Previously Produced or Published)',
+    'DIRECTING'
+  ],
+  qtd_categorias: 5
+
+  db.oscar.aggregate([
+  { $group: { _id: "$nome_do_indicado", categorias: { $addToSet: "$categoria" } } },
+  { $addFields: { qtd_categorias: { $size: "$categorias" } } },
+  { $match: { qtd_categorias: { $gt: 1 } } },
+  { $sort: { qtd_categorias: -1 } }
+])
+
+
+
+# 5.5 Quantos indicados têm exatamente 1 indicação na história?
+R: 5688
+
+db.oscar.aggregate([
+  { $group: { _id: "$nome_do_indicado", total: { $sum: 1 } } },
+  { $match: { total: 1 } },
+  { $count: "indicados_com_1_indicacao" }
+])
+
+# 5.6 Qual o maior números de indicados em um único ano? Essa é uma pergunta franca.
+R:  _id: 1943,
+  total: 186
+
+  db.oscar.aggregate([
+  { $group: { _id: "$ano_cerimonia", total: { $sum: 1 } } },
+  { $sort: { total: -1 } },
+  { $limit: 3 }
+])
+
+Nível 6: Análise de Filmes
+## Toy Story
+
+
+# 6.1 A série de filmes Toy Story ganhou Oscars em quais anos?
+R:2011 E 2020
+db.oscar.distinct("ano_cerimonia", { nome_do_filme: /Toy Story/, vencedor: 1 })
+
+# 6.2 Quantas indicações a franquia Toy Story recebeu no total?
+R: 11
+db.oscar.countDocuments({ nome_do_filme: /Toy Story/ })
+
+# 6.3 Em quais categorias os filmes Toy Story foram indicados?
+R: 'ANIMATED FEATURE FILM',
+  'BEST PICTURE',
+  'MUSIC (Original Musical or Comedy Score)',
+  'MUSIC (Original Song)',
+  'SOUND EDITING',
+  'WRITING (Adapted Screenplay)',
+  'WRITING (Screenplay Written Directly for the Screen)'
+
+  db.oscar.distinct("categoria", { nome_do_filme: /Toy Story/ })
+
+Crash
+
+# 6.4 Em qual edição do Oscar o filme "Crash" concorreu?
+R: 2006
+db.oscar.distinct("ano_cerimonia", { nome_do_filme: /^Crash$/ })
+
+# 6.5 Quantas indicações o filme "Crash" recebeu?
+R: 6
+db.oscar.countDocuments({ nome_do_filme: /^Crash$/ })
+
+# 6.6 "Crash" ganhou o Oscar de Melhor Filme?
+R:SIM
+db.oscar.find({
+  nome_do_filme: /^Crash$/,
+  categoria: { $in: ["BEST PICTURE", "OUTSTANDING PICTURE"] },
+  vencedor: 1
+})
+
+Central do Brasil
+
+# 6.7 O filme "Central do Brasil" aparece no banco de dados?
+R: SIM
+db.oscar.find(
+  { nome_do_filme: /Central (do Brasil|Station)/i },
+  { ano_cerimonia: 1, nome_do_filme: 1, categoria: 1, nome_do_indicado: 1, vencedor: 1, _id: 0 }
+)
+
+# 6.8 Se sim, quantas indicações "Central do Brasil" recebeu?
+R: 2
+db.oscar.countDocuments({ nome_do_filme: /Central (do Brasil|Station)/i })
+
+Nível 7: Operações de Atualização
+# 7.1 No campo "vencedor", altere todos os valores "true" (string) para true (booleano) e "false" (string) para false (booleano).
+R: db.oscar.aggregate([
+  { $group: { _id: { $type: "$vencedor" }, total: { $sum: 1 } } }
+])
+# 7.2 Inclua no banco 3 filmes que nunca foram nomeados ao Oscar, mas que você acha que merecem. Use dados fictícios mas realistas.
+R: const ultimo = db.oscar.find().sort({ id_registro: -1 }).limit(1).toArray()[0].id_registro;
+
+db.oscar.insertMany([
+  { id_registro: ultimo + 1, ano_filmagem: 2017, ano_cerimonia: 2018, cerimonia: 90,
+    categoria: "BEST PICTURE", nome_do_indicado: "Paddington 2", nome_do_filme: "Paddington 2",
+    vencedor: 0, ficticio: true },
+  { id_registro: ultimo + 2, ano_filmagem: 1999, ano_cerimonia: 2000, cerimonia: 72,
+    categoria: "ANIMATED FEATURE FILM", nome_do_indicado: "The Iron Giant", nome_do_filme: "The Iron Giant",
+    vencedor: 0, ficticio: true },
+  { id_registro: ultimo + 3, ano_filmagem: 2010, ano_cerimonia: 2011, cerimonia: 83,
+    categoria: "FILM EDITING", nome_do_indicado: "Scott Pilgrim vs. the World", nome_do_filme: "Scott Pilgrim vs. the World",
+    vencedor: 0, ficticio: true }
+])
+
+# 7.3 Adicione uma nova categoria chamada "BEST INTERNATIONAL FEATURE FILM" com alguns vencedores recentes (2020-2024).
+R: const ultimo = db.oscar.find().sort({ id_registro: -1 }).limit(1).toArray()[0].id_registro;
+
+db.oscar.insertMany([
+  { id_registro: ultimo + 1, ano_filmagem: 2019, ano_cerimonia: 2020, cerimonia: 92,
+    categoria: "BEST INTERNATIONAL FEATURE FILM", nome_do_indicado: "Bong Joon Ho", nome_do_filme: "Parasite", vencedor: 1 },
+  { id_registro: ultimo + 2, ano_filmagem: 2020, ano_cerimonia: 2021, cerimonia: 93,
+    categoria: "BEST INTERNATIONAL FEATURE FILM", nome_do_indicado: "Thomas Vinterberg", nome_do_filme: "Another Round", vencedor: 1 },
+  { id_registro: ultimo + 3, ano_filmagem: 2021, ano_cerimonia: 2022, cerimonia: 94,
+    categoria: "BEST INTERNATIONAL FEATURE FILM", nome_do_indicado: "Ryusuke Hamaguchi", nome_do_filme: "Drive My Car", vencedor: 1 },
+  { id_registro: ultimo + 4, ano_filmagem: 2022, ano_cerimonia: 2023, cerimonia: 95,
+    categoria: "BEST INTERNATIONAL FEATURE FILM", nome_do_indicado: "Edward Berger", nome_do_filme: "All Quiet on the Western Front", vencedor: 1 },
+  { id_registro: ultimo + 5, ano_filmagem: 2023, ano_cerimonia: 2024, cerimonia: 96,
+    categoria: "BEST INTERNATIONAL FEATURE FILM", nome_do_indicado: "Jonathan Glazer", nome_do_filme: "The Zone of Interest", vencedor: 1 }
+])
+
+# 7.4 Corrija possíveis erros de digitação nos nomes dos filmes (ex: espaços extras, caracteres especiais desnecessários).
+R: db.oscar.countDocuments({ nome_do_filme: /^\s|\s$|\s{2,}/ })
+db.oscar.updateMany(
+  { nome_do_filme: /^\s|\s$/ },
+  [{ $set: { nome_do_filme: { $trim: { input: "$nome_do_filme" } } } }]
+)
+db.oscar.updateMany(
+  { nome_do_filme: /\s{2,}/ },
+  [{ $set: { nome_do_filme: { $replaceAll: { input: "$nome_do_filme", find: "  ", replacement: " " } } } }]
+)
+
+# 7.5 Remova todos os registros com valor NULL no campo nome_do_filme.
+R:db.oscar.deleteMany({ nome_do_filme: null })
+
+Nível 8: Análise Temporal
+# 8.1 Quantas indicações aconteceram por década? Agrupe por década (1920s, 1930s, etc.) e mostre o total.
+R: _id: 1920,
+  total: 72
+   _id: 1930,
+  total: 711
+    _id: 1940,
+  total: 1501
+   _id: 1950,
+  total: 1188
+   _id: 1960,
+  total: 1195
+   _id: 1970,
+  total: 1056
+   _id: 1980,
+  total: 1060
+  _id: 1990,
+  total: 1113
+  _id: 2000,
+  total: 1121
+  _id: 2010,
+  total: 1252
+   _id: 2020,
+  total: 872
+
+db.oscar.aggregate([
+  { $addFields: { ano_num: { $convert: { input: "$ano_cerimonia", to: "int", onError: null, onNull: null } } } },
+  { $match: { ano_num: { $ne: null } } },
+  { $group: {
+      _id: { $subtract: ["$ano_num", { $mod: ["$ano_num", 10] }] },
+      total: { $sum: 1 }
+  } },
+  { $sort: { _id: 1 } }
+])
+
+
+
+
+# 8.2 Em qual década houve o maior número de indicações?
+R:   _id: 1940,
+  total: 1501
+
+  db.oscar.aggregate([
+  { $addFields: { ano_num: { $convert: { input: "$ano_cerimonia", to: "int", onError: null, onNull: null } } } },
+  { $match: { ano_num: { $ne: null } } },
+  { $group: {
+      _id: { $subtract: ["$ano_num", { $mod: ["$ano_num", 10] }] },
+      total: { $sum: 1 }
+  } },
+  { $sort: { total: -1 } },
+  { $limit: 3 }
+])
+
+# 8.3 Como o número de categorias evoluiu ao longo dos anos? Mostre quantas categorias únicas existiam a cada década.
+R:_id: 1920,
+  qtd_categorias: 15
+  _id: 1930,
+  qtd_categorias: 27
+   _id: 1940,
+  qtd_categorias: 38
+   _id: 1950,
+  qtd_categorias: 43
+  _id: 1960,
+  qtd_categorias: 40
+    _id: 1970,
+  qtd_categorias: 50
+    _id: 1980,
+  qtd_categorias: 34
+  _id: 1990,
+  qtd_categorias: 31
+   _id: 2000,
+  qtd_categorias: 31
+    _id: 2010,
+  qtd_categorias: 30
+   _id: 2020,
+  qtd_categorias: 33
+  db.oscar.aggregate([
+  ...prep,
+  { $group: {
+      _id: { $subtract: ["$ano_num", { $mod: ["$ano_num", 10] }] },
+      categorias: { $addToSet: "$categoria" }
+  } },
+  { $project: { qtd_categorias: { $size: "$categorias" } } },
+  { $sort: { _id: 1 } }
+])
+
+# 8.4 Qual foi o ano com o maior número de indicações registradas?
+R:_id: 1943,
+  total: 186
+  
+db.oscar.aggregate([
+  ...prep,
+  { $group: { _id: "$ano_num", total: { $sum: 1 } } },
+  { $sort: { total: -1 } },
+  { $limit: 3 }
+])
+
+# 8.5 Calcule a taxa de crescimento de indicações comparando a primeira década com a última.
+R: primeira: 73,
+  ultima: 872,
+  crescimento_percentual: 1094.5205479452054
+
+db.oscar.aggregate([
+  ...prep,
+  { $group: {
+      _id: { $subtract: ["$ano_num", { $mod: ["$ano_num", 10] }] },
+      total: { $sum: 1 }
+  } },
+  { $sort: { _id: 1 } },
+  { $group: { _id: null, primeira: { $first: "$total" }, ultima: { $last: "$total" } } },
+  { $project: {
+      _id: 0, primeira: 1, ultima: 1,
+      crescimento_percentual: {
+        $multiply: [{ $divide: [{ $subtract: ["$ultima", "$primeira"] }, "$primeira"] }, 100]
+      }
+  } }
+])
+
+Nível 9: Questões Históricas e Sociais
+Representatividade
+# 9.1 Sidney Poitier foi o primeiro ator negro a ser indicado ao Oscar. Em que ano ele foi indicado? Por qual filme?
+R: ano_cerimonia: 1959,
+  categoria: 'ACTOR',
+  nome_do_filme: 'The Defiant Ones',
+  vencedor: 0
+
+    ano_cerimonia: 1964,
+  categoria: 'ACTOR',
+  nome_do_filme: 'Lilies of the Field',
+  vencedor: 1
+
+  db.oscar.find(
+  { nome_do_indicado: "Sidney Poitier" },
+  { ano_cerimonia: 1, categoria: 1, nome_do_filme: 1, vencedor: 1, _id: 0 }
+).sort({ ano_cerimonia: 1 })
+
+# 9.2 Sidney Poitier ganhou o Oscar nessa indicação?
+R: Na de 1964 Sim
+
+
+# 9.3 Quantos atores/atrizes negros foram indicados na categoria ACTOR ou ACTRESS antes de 1970?
+R: 6 Atores/atrizes
+
+
+db.oscar.find(
+  {
+    nome_do_indicado: { $in: ["Hattie McDaniel", "Ethel Waters", "Dorothy Dandridge",
+                              "Sidney Poitier", "Juanita Moore", "Beah Richards"] },
+    categoria: /^ACT(OR|RESS)/,
+    ano_cerimonia: { $lt: 1970 }
+  },
+  { ano_cerimonia: 1, nome_do_indicado: 1, categoria: 1, nome_do_filme: 1, _id: 0 }
+).sort({ ano_cerimonia: 1 })
+
+# 9.4 Liste todos os filmes dirigidos por mulheres que ganharam algum Oscar.
+R:   "The Hurt Locker", "Nomadland", "The Piano", "Lost in Translation",
+        "Promising Young Woman", "Women Talking", "The Substance", "Frozen",
+        "Brave", "Barbie", "Little Women", "Yentl", "Zero Dark Thirty",
+        "American Factory", "Citizenfour", "Free Solo", "Bao",
+        "Period. End of Sentence.", "The Elephant Whisperers", "Encanto"
+
+db.oscar.aggregate([
+  { $match: {
+      vencedor: 1,
+      nome_do_filme: { $in: [
+        "The Hurt Locker", "Nomadland", "The Piano", "Lost in Translation",
+        "Promising Young Woman", "Women Talking", "The Substance", "Frozen",
+        "Brave", "Barbie", "Little Women", "Yentl", "Zero Dark Thirty",
+        "American Factory", "Citizenfour", "Free Solo", "Bao",
+        "Period. End of Sentence.", "The Elephant Whisperers", "Encanto"
+      ] }
+  } },
+  { $group: { _id: "$nome_do_filme", oscars: { $sum: 1 } } },
+  { $sort: { oscars: -1 } }
+])
+
+Coincidências
+# 9.5 Denzel Washington e Jamie Foxx já concorreram ao Oscar no mesmo ano?
+R: Não
+
+const denzel = db.oscar.distinct("ano_cerimonia", { nome_do_indicado: "Denzel Washington" });
+const foxx = db.oscar.distinct("ano_cerimonia", { nome_do_indicado: "Jamie Foxx" });
+denzel.filter(ano => foxx.includes(ano))
+
+# 9.6 Se sim, em qual ano e quem ganhou?
+R: Não concorreram o oscar no mesmo ano
+
+# 9.7 Encontre casos onde o mesmo filme ganhou Oscar em múltiplas categorias na mesma cerimônia. Mostre o nome do filme e quantas categorias ele venceu.
+R:  _id: {
+    filme: 'Titanic',
+    ano: 1998
+  },
+  categorias_vencidas: 11
+    _id: {
+    filme: 'The Lord of the Rings: The Return of the King',
+    ano: 2004
+  },
+  categorias_vencidas: 11
+    _id: {
+    filme: 'Ben-Hur',
+    ano: 1960
+  },
+  categorias_vencidas: 11
+   _id: {
+    filme: 'West Side Story',
+    ano: 1962
+  },
+  categorias_vencidas: 10
+    _id: {
+    filme: 'The English Patient',
+    ano: 1997
+  },
+  categorias_vencidas: 9
+    _id: {
+    filme: 'The Last Emperor',
+    ano: 1988
+  },
+  categorias_vencidas: 9
+  _id: {
+    filme: 'Gigi',
+    ano: 1959
+  },
+  categorias_vencidas: 9
+  _id: {
+    filme: 'Gandhi',
+    ano: 1983
+  },
+  categorias_vencidas: 8
+   _id: {
+    filme: 'Gone with the Wind',
+    ano: 1940
+  },
+  categorias_vencidas: 8
+    _id: {
+    filme: 'Slumdog Millionaire',
+    ano: 2009
+  },
+  categorias_vencidas: 8
+   _id: {
+    filme: 'My Fair Lady',
+    ano: 1965
+  },
+  categorias_vencidas: 8
+  _id: {
+    filme: 'Cabaret',
+    ano: 1973
+  },
+  categorias_vencidas: 8
+   _id: {
+    filme: 'On the Waterfront',
+    ano: 1955
+  },
+  categorias_vencidas: 8
+   _id: {
+    filme: 'Amadeus',
+    ano: 1985
+  },
+  categorias_vencidas: 8
+  _id: {
+    filme: 'From Here to Eternity',
+    ano: 1954
+  },
+  categorias_vencidas: 8
+   _id: {
+    filme: 'Out of Africa',
+    ano: 1986
+  },
+  categorias_vencidas: 7
+  _id: {
+    filme: 'Gravity',
+    ano: 2014
+  },
+  categorias_vencidas: 7
+  _id: {
+    filme: 'NULL',
+    ano: 1933
+  },
+  categorias_vencidas: 7
+  _id: {
+    filme: 'Dances With Wolves',
+    ano: 1991
+  },
+  categorias_vencidas: 7
+    _id: {
+    filme: 'Everything Everywhere All at Once',
+    ano: 2023
+  },
+  categorias_vencidas: 7
+
+db.oscar.aggregate([
+  { $match: { vencedor: 1 } },
+  { $group: {
+      _id: { filme: "$nome_do_filme", ano: "$ano_cerimonia" },
+      categorias_vencidas: { $sum: 1 }
+  } },
+  { $match: { categorias_vencidas: { $gt: 1 } } },
+  { $sort: { categorias_vencidas: -1 } }
+])
+
+
+Nível 10: Análise Avançada
+# 10.1 Quais filmes ganharam o Oscar de Melhor Filme ("OUTSTANDING PICTURE" ou "BEST PICTURE") e Melhor Diretor na mesma cerimônia?
+R:   _id: {
+    filme: 'All Quiet on the Western Front',
+    ano: 1930
+  },
+  categorias: [
+    'OUTSTANDING PRODUCTION',
+    'DIRECTING'
+      _id: {
+    filme: 'Cavalcade',
+    ano: 1933
+  },
+  categorias: [
+    'OUTSTANDING PRODUCTION',
+    'DIRECTING'
+      _id: {
+    filme: 'It Happened One Night',
+    ano: 1935
+  },
+  categorias: [
+    'DIRECTING',
+    'OUTSTANDING PRODUCTION'
+
+   _id: {
+    filme: "You Can't Take It with You",
+    ano: 1939
+  },
+  categorias: [
+    'DIRECTING',
+    'OUTSTANDING PRODUCTION'
+    _id: {
+    filme: 'Gone with the Wind',
+    ano: 1940
+  },
+  categorias: [
+    'OUTSTANDING PRODUCTION',
+    'DIRECTING'
+      _id: {
+    filme: 'How Green Was My Valley',
+    ano: 1942
+  },
+  categorias: [
+    'OUTSTANDING MOTION PICTURE',
+    'DIRECTING'
+    _id: {
+    filme: 'Mrs. Miniver',
+    ano: 1943
+  },
+  categorias: [
+    'OUTSTANDING MOTION PICTURE',
+    'DIRECTING'
+      _id: {
+    filme: 'Casablanca',
+    ano: 1944
+  },
+  categorias: [
+    'OUTSTANDING MOTION PICTURE',
+    'DIRECTING'
+      _id: {
+    filme: 'Going My Way',
+    ano: 1945
+  },
+  categorias: [
+    'BEST MOTION PICTURE',
+    'DIRECTING'
+      _id: {
+    filme: 'The Lost Weekend',
+    ano: 1946
+  },
+  categorias: [
+    'BEST MOTION PICTURE',
+    'DIRECTING'
+     _id: {
+    filme: 'The Best Years of Our Lives',
+    ano: 1947
+  },
+  categorias: [
+    'BEST MOTION PICTURE',
+    'DIRECTING'
+      _id: {
+    filme: "Gentleman's Agreement",
+    ano: 1948
+  },
+  categorias: [
+    'DIRECTING',
+    'BEST MOTION PICTURE'
+     _id: {
+    filme: 'All about Eve',
+    ano: 1951
+  },
+  categorias: [
+    'DIRECTING',
+    'BEST MOTION PICTURE'
+     _id: {
+    filme: 'From Here to Eternity',
+    ano: 1954
+  },
+  categorias: [
+    'BEST MOTION PICTURE',
+    'DIRECTING'
+      _id: {
+    filme: 'On the Waterfront',
+    ano: 1955
+  },
+  categorias: [
+    'DIRECTING',
+    'BEST MOTION PICTURE'
+      _id: {
+    filme: 'Marty',
+    ano: 1956
+  },
+  categorias: [
+    'BEST MOTION PICTURE',
+    'DIRECTING'
+     _id: {
+    filme: 'The Bridge on the River Kwai',
+    ano: 1958
+  },
+  categorias: [
+    'BEST MOTION PICTURE',
+    'DIRECTING'
+    _id: {
+    filme: 'Gigi',
+    ano: 1959
+  },
+  categorias: [
+    'BEST MOTION PICTURE',
+    'DIRECTING'
+      _id: {
+    filme: 'Ben-Hur',
+    ano: 1960
+  },
+  categorias: [
+    'DIRECTING',
+    'BEST MOTION PICTURE'
+      _id: {
+    filme: 'The Apartment',
+    ano: 1961
+  },
+  categorias: [
+    'BEST MOTION PICTURE',
+    'DIRECTING'
+
+db.oscar.aggregate([
+  { $match: { vencedor: 1, categoria: { $in: [...pic, ...dir] } } },
+  { $group: {
+      _id: { filme: "$nome_do_filme", ano: "$ano_cerimonia" },
+      categorias: { $addToSet: "$categoria" }
+  } },
+  { $match: { $expr: { $and: [
+      { $gt: [{ $size: { $setIntersection: ["$categorias", pic] } }, 0] },
+      { $gt: [{ $size: { $setIntersection: ["$categorias", dir] } }, 0] }
+  ] } } },
+  { $sort: { "_id.ano": 1 } }
+])
+
+# 10.2 Qual filme recebeu o maior número de indicações em uma única cerimônia?
+R:   _id: {
+    filme: 'NULL',
+    ano: 1933
+  },
+  indicacoes: 18
+  db.oscar.aggregate([
+  { $group: {
+      _id: { filme: "$nome_do_filme", ano: "$ano_cerimonia" },
+      indicacoes: { $sum: 1 }
+  } },
+  { $sort: { indicacoes: -1 } },
+  { $limit: 5 }
+])
+
+# 10.3 Qual filme teve a maior taxa de conversão (porcentagem de indicações que viraram vitórias)?
+R:   _id: {
+    filme: 'The Lord of the Rings: The Return of the King',
+    ano: 2004
+  },
+  indicacoes: 11,
+  vitorias: 11,
+  taxa_percentual: 100
+
+  db.oscar.aggregate([
+  { $group: {
+      _id: { filme: "$nome_do_filme", ano: "$ano_cerimonia" },
+      indicacoes: { $sum: 1 },
+      vitorias: { $sum: { $cond: [{ $in: ["$vencedor", [1, true]] }, 1, 0] } }
+  } },
+  { $match: { indicacoes: { $gte: 3 } } },
+  { $addFields: { taxa_percentual: { $multiply: [{ $divide: ["$vitorias", "$indicacoes"] }, 100] } } },
+  { $sort: { taxa_percentual: -1, indicacoes: -1 } },
+  { $limit: 10 }
+])
+
+# 10.4 Encontre atores que foram indicados em anos consecutivos. Liste o nome e os anos.
+R:   _id: 'Adam Driver',
+  anos: [
+    2019,
+    2020
+     _id: 'Al Pacino',
+  anos: [
+    1973,
+    1974,
+    1975,
+    1976,
+    1980,
+    1991,
+    1993,
+    2020
+    _id: 'Albert Finney',
+  anos: [
+    1964,
+    1975,
+    1984,
+    1985,
+    2001
+     _id: 'Alice Brady',
+  anos: [
+    1937,
+    1938
+      _id: 'Amy Adams',
+  anos: [
+    2006,
+    2009,
+    2011,
+    2013,
+    2014,
+    2019
+      _id: 'Angela Lansbury',
+  anos: [
+    1945,
+    1946,
+    1963
+      _id: 'Anjelica Huston',
+  anos: [
+    1986,
+    1990,
+    1991
+      _id: 'Anthony Hopkins',
+  anos: [
+    1992,
+    1994,
+    1996,
+    1998,
+    2020,
+    2021
+      _id: 'Anthony Quinn',
+  anos: [
+    1953,
+    1957,
+    1958,
+    1965
+     _id: 'Arthur Kennedy',
+  anos: [
+    1950,
+    1952,
+    1956,
+    1958,
+    1959
+      _id: 'Audrey Hepburn',
+  anos: [
+    1954,
+    1955,
+    1960,
+    1962,
+    1968
+      _id: 'Bette Davis',
+  anos: [
+    1935,
+    1936,
+    1939,
+    1940,
+    1941,
+    1942,
+    1943,
+    1945,
+    1951,
+    1953,
+    1963
+      _id: 'Bing Crosby',
+  anos: [
+    1945,
+    1946,
+    1955
+     _id: 'Bradley Cooper',
+  anos: [
+    2013,
+    2014,
+    2015,
+    2019,
+    2024
+     _id: 'Burgess Meredith',
+  anos: [
+    1976,
+    1977
+     _id: 'Cate Blanchett',
+  anos: [
+    1999,
+    2005,
+    2007,
+    2008,
+    2014,
+    2016,
+    2023
+     _id: 'Celeste Holm',
+  anos: [
+    1948,
+    1950,
+    1951
+      _id: 'Charles Bickford',
+  anos: [
+    1944,
+    1948,
+    1949
+      _id: 'Charles Boyer',
+  anos: [
+    1938,
+    1939,
+    1945,
+    1962
+      _id: 'Charles Durning',
+  anos: [
+    1983,
+    1984
+
+
+db.oscar.aggregate([
+  { $match: { categoria: /^ACT(OR|RESS)/ } },
+  { $group: { _id: "$nome_do_indicado", anos: { $addToSet: "$ano_cerimonia" } } },
+  { $addFields: { anos: { $sortArray: { input: "$anos", sortBy: 1 } } } },
+  { $addFields: { consecutivos: { $filter: {
+      input: "$anos", as: "a",
+      cond: { $in: [{ $add: ["$$a", 1] }, "$anos"] }
+  } } } },
+  { $match: { "consecutivos.0": { $exists: true } } },
+  { $project: { anos: 1 } },
+  { $sort: { _id: 1 } }
+])
+
+# 10.5 Qual a média de indicações por cerimônia ao longo da história?
+R:90
+db.oscar.aggregate([
+  { $group: { _id: "$cerimonia", total: { $sum: 1 } } },
+  { $group: { _id: null, media: { $avg: "$total" }, cerimonias: { $sum: 1 } } }
+])
+
+# 10.6 Identifique "surpresas" - indicados em categorias principais (ACTOR, ACTRESS, BEST PICTURE) cujo filme só teve uma indicação.
+R: ano_cerimonia: 1928,
+  categoria: 'ACTRESS',
+  nome_do_indicado: 'Louise Dresser',
+  nome_do_filme: 'A Ship Comes In',
+  vencedor: 0
+    ano_cerimonia: 1928,
+  categoria: 'OUTSTANDING PICTURE',
+  nome_do_indicado: 'The Caddo Company',
+  nome_do_filme: 'The Racket',
+  vencedor: 0
+    nome_do_indicado: 'Gloria Swanson',
+  nome_do_filme: 'Sadie Thompson',
+  vencedor: 0,
+  ano_cerimonia: 1928,
+  categoria: 'ACTRESS'
+    ano_cerimonia: 1928,
+  categoria: 'ACTOR',
+  nome_do_indicado: 'Richard Barthelmess',
+  nome_do_filme: 'The Noose',
+  vencedor: 0
+
+ ano_cerimonia: 1928,
+  categoria: 'UNIQUE AND ARTISTIC PICTURE',
+  nome_do_indicado: 'Paramount Famous Lasky',
+  nome_do_filme: 'Chang',
+  vencedor: 0
+   ano_cerimonia: 1929,
+  categoria: 'ACTRESS',
+  nome_do_indicado: 'Jeanne Eagels',
+  nome_do_filme: 'The Letter',
+  vencedor: 0
+    ano_cerimonia: 1929,
+  categoria: 'ACTRESS',
+  nome_do_indicado: 'Mary Pickford',
+  nome_do_filme: 'Coquette',
+  vencedor: 1
+   ano_cerimonia: 1929,
+  categoria: 'ACTRESS',
+  nome_do_indicado: 'Betty Compson',
+  nome_do_filme: 'The Barker',
+  vencedor: 0
+   ano_cerimonia: 1929,
+  categoria: 'ACTOR',
+  nome_do_indicado: 'George Bancroft',
+  nome_do_filme: 'Thunderbolt',
+  vencedor: 0
+    ano_cerimonia: 1929,
+  categoria: 'OUTSTANDING PICTURE',
+  nome_do_indicado: 'Metro-Goldwyn-Mayer',
+  nome_do_filme: 'Hollywood Revue',
+  vencedor: 0
+   ano_cerimonia: 1929,
+  categoria: 'ACTOR',
+  nome_do_indicado: 'Paul Muni',
+  nome_do_filme: 'The Valiant',
+  vencedor: 0
+   ano_cerimonia: 1930,
+  categoria: 'ACTOR',
+  nome_do_indicado: 'Lawrence Tibbett',
+  nome_do_filme: 'The Rogue Song',
+  vencedor: 0
+   ano_cerimonia: 1930,
+  categoria: 'ACTOR',
+  nome_do_indicado: 'George Arliss',
+  nome_do_filme: 'The Green Goddess',
+  vencedor: 0
+   ano_cerimonia: 1930,
+  categoria: 'ACTRESS',
+  nome_do_indicado: 'Gloria Swanson',
+  nome_do_filme: 'The Trespasser',
+  vencedor: 0
+   ano_cerimonia: 1930,
+  categoria: 'ACTRESS',
+  nome_do_indicado: 'Ruth Chatterton',
+  nome_do_filme: 'Sarah and Son',
+  vencedor: 0
+  ano_cerimonia: 1930,
+  categoria: 'ACTRESS',
+  nome_do_indicado: 'Nancy Carroll',
+  nome_do_filme: "The Devil's Holiday",
+  vencedor: 0
+    ano_cerimonia: 1930,
+  categoria: 'ACTRESS',
+  nome_do_indicado: 'Norma Shearer',
+  nome_do_filme: 'Their Own Desire',
+  vencedor: 0
+   ano_cerimonia: 1930,
+  categoria: 'ACTOR',
+  nome_do_indicado: 'Maurice Chevalier',
+  nome_do_filme: 'The Big Pond',
+  vencedor: 0
+    ano_cerimonia: 1931,
+  categoria: 'ACTOR',
+  nome_do_indicado: 'Fredric March',
+  nome_do_filme: 'The Royal Family of Broadway',
+  vencedor: 0
+    ano_cerimonia: 1931,
+  categoria: 'OUTSTANDING PRODUCTION',
+  nome_do_indicado: 'Metro-Goldwyn-Mayer',
+  nome_do_filme: 'Trader Horn',
+  vencedor: 0
+  
+
+
+db.oscar.aggregate([
+  { $match: { ficticio: { $ne: true } } },
+  { $group: {
+      _id: { filme: "$nome_do_filme", ano: "$ano_cerimonia" },
+      total: { $sum: 1 },
+      docs: { $push: "$$ROOT" }
+  } },
+  { $match: { total: 1 } },
+  { $unwind: "$docs" },
+  { $replaceRoot: { newRoot: "$docs" } },
+  { $match: { $or: [
+      { categoria: /^(ACTOR|ACTRESS)( IN A LEADING ROLE)?$/ },
+      { categoria: { $in: pic } }
+  ] } },
+  { $project: { ano_cerimonia: 1, categoria: 1, nome_do_indicado: 1, nome_do_filme: 1, vencedor: 1, _id: 0 } },
+  { $sort: { ano_cerimonia: 1 } }
+])
+
+Nível 11: Desafios Complexos
+# 11.1 Crie um ranking dos 10 filmes mais premiados da história (que ganharam mais Oscars).
+R:
+
+# 11.2 Crie um ranking dos 10 artistas (atores/diretores) mais indicados da história, independente da categoria.
+R:
+
+# 11.3 Encontre "azarões" - artistas com mais de 5 indicações e 0 vitórias.
+R:
+
+# 11.4 Qual categoria tem a maior concentração de vitórias (menos vencedores diferentes ao longo do tempo)?
+R:
+
+# 11.5 Calcule a "competitividade" de cada categoria (média de indicados por cerimônia).
+R:
+
+# 11.6 Encontre filmes que foram indicados em uma categoria em um ano e ganharam em outra categoria em outro ano.
+R:
