@@ -1520,19 +1520,1426 @@ db.oscar.aggregate([
 
 Nível 11: Desafios Complexos
 # 11.1 Crie um ranking dos 10 filmes mais premiados da história (que ganharam mais Oscars).
-R:
+R: _id: {
+    filme: 'Ben-Hur',
+    ano: 1960
+  },
+  oscars: 11
+}
+ _id: {
+    filme: 'The Lord of the Rings: The Return of the King',
+    ano: 2004
+  },
+  oscars: 11
+    _id: {
+    filme: 'Titanic',
+    ano: 1998
+  },
+  oscars: 11
+   _id: {
+    filme: 'West Side Story',
+    ano: 1962
+  },
+  oscars: 10
+    _id: {
+    filme: 'Gigi',
+    ano: 1959
+  },
+  oscars: 9
+}
+  _id: {
+    filme: 'The English Patient',
+    ano: 1997
+  },
+  oscars: 9
+    _id: {
+    filme: 'The Last Emperor',
+    ano: 1988
+  },
+  oscars: 9
+    _id: {
+    filme: 'Slumdog Millionaire',
+    ano: 2009
+  },
+  oscars: 8
+  _id: {
+    filme: 'Amadeus',
+    ano: 1985
+  },
+  oscars: 8
+    _id: {
+    filme: 'Gone with the Wind',
+    ano: 1940
+  },
+  oscars: 8
+
+  db.oscar.aggregate([
+  real,
+  { $match: { vencedor: venceu, nome_do_filme: { $ne: null } } },
+  { $group: { _id: { filme: "$nome_do_filme", ano: "$ano_cerimonia" }, oscars: { $sum: 1 } } },
+  { $sort: { oscars: -1 } },
+  { $limit: 12 }
+])
 
 # 11.2 Crie um ranking dos 10 artistas (atores/diretores) mais indicados da história, independente da categoria.
-R:
+R:   _id: 'John Williams',
+  indicacoes: 46
+   _id: 'Alfred Newman',
+  indicacoes: 34
+    _id: 'Gordon Hollingshead, Producer',
+  indicacoes: 22
+  _id: 'Meryl Streep',
+  indicacoes: 21
+    _id: 'Victor Young',
+  indicacoes: 19
+   _id: 'Woody Allen',
+  indicacoes: 18
+  _id: 'Leon Shamroy',
+  indicacoes: 17
+   _id: 'Pete Smith, Producer',
+  indicacoes: 16
+  _id: 'Max Steiner',
+  indicacoes: 16
+    _id: 'Pete Smith, Producer',
+  indicacoes: 16
+  db.oscar.aggregate([
+  real,
+  { $match: { nome_do_indicado: { $ne: null } } },
+  { $group: { _id: "$nome_do_indicado", indicacoes: { $sum: 1 } } },
+  { $sort: { indicacoes: -1 } },
+  { $limit: 25 }
+])
 
 # 11.3 Encontre "azarões" - artistas com mais de 5 indicações e 0 vitórias.
-R:
+R:   _id: 'Thomas Newman',
+  indicacoes: 14,
+  vitorias: 0
+   _id: 'George Folsey',
+  indicacoes: 12,
+  vitorias: 0
+   _id: 'Walter Lantz, Producer',
+  indicacoes: 10,
+  vitorias: 0
+    _id: 'Randy Newman',
+  indicacoes: 9,
+  vitorias: 0
+    _id: "Peter O'Toole",
+  indicacoes: 8,
+  vitorias: 0
+  _id: 'Glenn Close',
+  indicacoes: 8,
+  vitorias: 0
+  
+
+db.oscar.aggregate([
+  real,
+  { $match: { nome_do_indicado: { $ne: null } } },
+  { $group: {
+      _id: "$nome_do_indicado",
+      indicacoes: { $sum: 1 },
+      vitorias: { $sum: { $cond: [{ $in: ["$vencedor", [1, true]] }, 1, 0] } }
+  } },
+  { $match: { indicacoes: { $gt: 5 }, vitorias: 0 } },
+  { $sort: { indicacoes: -1 } }
+])
 
 # 11.4 Qual categoria tem a maior concentração de vitórias (menos vencedores diferentes ao longo do tempo)?
-R:
+R: _id: 'FOREIGN LANGUAGE FILM',
+  vitorias: 63,
+  vencedores_diferentes: 28,
+  razao: 0.4444444444444444
+
+db.oscar.aggregate([
+  real,
+  { $match: { vencedor: venceu } },
+  { $group: { _id: "$categoria", vitorias: { $sum: 1 }, vencedores: { $addToSet: "$nome_do_indicado" } } },
+  { $project: {
+      vitorias: 1,
+      vencedores_diferentes: { $size: "$vencedores" },
+      razao: { $divide: [{ $size: "$vencedores" }, "$vitorias"] }
+  } },
+  { $match: { vitorias: { $gte: 10 } } },
+  { $sort: { razao: 1 } },
+  { $limit: 10 }
+])
 
 # 11.5 Calcule a "competitividade" de cada categoria (média de indicados por cerimônia).
-R:
+R:  _id: 'DOCUMENTARY',
+  media_indicados: 25,
+  cerimonias: 1
+    _id: 'MUSIC (Music Score of a Dramatic Picture)',
+  media_indicados: 20,
+  cerimonias: 1
+    _id: 'OUTSTANDING MOTION PICTURE',
+  media_indicados: 10,
+  cerimonias: 3
+  _id: 'OUTSTANDING PRODUCTION',
+  media_indicados: 9.272727272727273,
+  cerimonias: 11
+    _id: 'MUSIC (Scoring)',
+  media_indicados: 8,
+  cerimonias: 8
+    _id: 'MUSIC (Music Score of a Dramatic or Comedy Picture)',
+  media_indicados: 7.7894736842105265,
+  cerimonias: 19
+    _id: 'DANCE DIRECTION',
+  media_indicados: 7,
+  cerimonias: 3
+   _id: 'ASSISTANT DIRECTOR',
+  media_indicados: 7,
+  cerimonias: 5
+   _id: 'SOUND RECORDING',
+  media_indicados: 6.964285714285714,
+  cerimonias: 28
+   _id: 'MUSIC (Scoring of a Musical Picture)',
+  media_indicados: 6.35,
+  cerimonias: 20
+    _id: 'BEST PICTURE',
+  media_indicados: 6.109375,
+  cerimonias: 64
+  _id: 'MUSIC (Song)',
+  media_indicados: 5.972222222222222,
+  cerimonias: 36
+   _id: 'CINEMATOGRAPHY (Black-and-White)',
+  media_indicados: 5.962962962962963,
+  cerimonias: 27
+   _id: 'ART DIRECTION (Black-and-White)',
+  media_indicados: 5.52,
+  cerimonias: 25
+    _id: 'WRITING',
+  media_indicados: 5.5,
+  cerimonias: 2
+  _id: 'MUSIC (Original Score)',
+  media_indicados: 5.490196078431373,
+  cerimonias: 51
+   _id: 'ART DIRECTION',
+  media_indicados: 5.203389830508475,
+  cerimonias: 59
+  _id: 'MUSIC (Original Dramatic Score)',
+  media_indicados: 5.125,
+  cerimonias: 8
+    _id: 'MUSIC (Score of a Musical Picture--original or adaptation)',
+  media_indicados: 5,
+  cerimonias: 2
+    _id: 'MUSIC (Original Music Score)',
+  media_indicados: 5,
+  cerimonias: 2
+
+db.oscar.aggregate([
+  real,
+  { $group: { _id: { categoria: "$categoria", cerimonia: "$cerimonia" }, indicados: { $sum: 1 } } },
+  { $group: { _id: "$_id.categoria", media_indicados: { $avg: "$indicados" }, cerimonias: { $sum: 1 } } },
+  { $sort: { media_indicados: -1 } }
+])
 
 # 11.6 Encontre filmes que foram indicados em uma categoria em um ano e ganharam em outra categoria em outro ano.
-R:
+R:id: 'Cyrano de Bergerac',
+  perdidas: [
+    {
+      categoria: 'FOREIGN LANGUAGE FILM',
+      ano: 1991
+    },
+    {
+      categoria: 'MAKEUP',
+      ano: 1991
+    },
+    {
+      categoria: 'ACTOR IN A LEADING ROLE',
+      ano: 1991
+    },
+    {
+      categoria: 'ART DIRECTION',
+      ano: 1991
+    }
+  ],
+  vitorias: [
+    {
+      categoria: 'ACTOR',
+      ano: 1951
+    },
+    {
+      categoria: 'COSTUME DESIGN',
+      ano: 1991
+    }
+  ]
+}
+
+_id: 'War and Peace',
+  perdidas: [
+    {
+      categoria: 'COSTUME DESIGN (Color)',
+      ano: 1957
+    },
+    {
+      categoria: 'DIRECTING',
+      ano: 1957
+    },
+    {
+      categoria: 'CINEMATOGRAPHY (Color)',
+      ano: 1957
+    },
+    {
+      categoria: 'ART DIRECTION',
+      ano: 1969
+    }
+  ],
+  vitorias: [
+    {
+      categoria: 'FOREIGN LANGUAGE FILM',
+      ano: 1969
+    }
+  ]
+  _id: 'A Star Is Born',
+  perdidas: [
+    {
+      categoria: 'OUTSTANDING PRODUCTION',
+      ano: 1938
+    },
+    {
+      categoria: 'ASSISTANT DIRECTOR',
+      ano: 1938
+    },
+    {
+      categoria: 'DIRECTING',
+      ano: 1938
+    },
+    {
+      categoria: 'WRITING (Screenplay)',
+      ano: 1938
+    },
+    {
+      categoria: 'ACTOR',
+      ano: 1938
+    },
+    {
+      categoria: 'ACTRESS',
+      ano: 1938
+    },
+    {
+      categoria: 'COSTUME DESIGN (Color)',
+      ano: 1955
+    },
+    {
+      categoria: 'MUSIC (Song)',
+      ano: 1955
+    },
+    {
+      categoria: 'ACTRESS',
+      ano: 1955
+    },
+    {
+      categoria: 'ART DIRECTION (Color)',
+      ano: 1955
+    },
+    {
+      categoria: 'ACTOR',
+      ano: 1955
+    },
+    {
+      categoria: 'MUSIC (Scoring of a Musical Picture)',
+      ano: 1955
+    },
+    {
+      categoria: 'CINEMATOGRAPHY',
+      ano: 1977
+    },
+    {
+      categoria: 'MUSIC (Original Song Score and Its Adaptation or Adaptation Score)',
+      ano: 1977
+    },
+    {
+      categoria: 'SOUND',
+      ano: 1977
+    },
+    {
+      categoria: 'ACTOR IN A SUPPORTING ROLE',
+      ano: 2019
+    },
+    {
+      categoria: 'WRITING (Adapted Screenplay)',
+      ano: 2019
+    },
+    {
+      categoria: 'CINEMATOGRAPHY',
+      ano: 2019
+    },
+    {
+      categoria: 'ACTOR IN A LEADING ROLE',
+      ano: 2019
+    },
+    {
+      categoria: 'ACTRESS IN A LEADING ROLE',
+      ano: 2019
+    },
+    {
+      categoria: 'BEST PICTURE',
+      ano: 2019
+    },
+    {
+      categoria: 'SOUND MIXING',
+      ano: 2019
+    }
+  ],
+  vitorias: [
+    {
+      categoria: 'WRITING (Original Story)',
+      ano: 1938
+    },
+    {
+      categoria: 'MUSIC (Original Song)',
+      ano: 1977
+    },
+    {
+      categoria: 'MUSIC (Original Song)',
+      ano: 2019
+    }
+  ]
+}
+_id: 'Henry V',
+  perdidas: [
+    {
+      categoria: 'ACTOR',
+      ano: 1947
+    },
+    {
+      categoria: 'ART DIRECTION (Color)',
+      ano: 1947
+    },
+    {
+      categoria: 'MUSIC (Music Score of a Dramatic or Comedy Picture)',
+      ano: 1947
+    },
+    {
+      categoria: 'BEST MOTION PICTURE',
+      ano: 1947
+    },
+    {
+      categoria: 'ACTOR IN A LEADING ROLE',
+      ano: 1990
+    },
+    {
+      categoria: 'DIRECTING',
+      ano: 1990
+    }
+  ],
+  vitorias: [
+    {
+      categoria: 'COSTUME DESIGN',
+      ano: 1990
+    }
+  ]
+  _id: 'Charade',
+  perdidas: [
+    {
+      categoria: 'MUSIC (Song)',
+      ano: 1964
+    }
+  ],
+  vitorias: [
+    {
+      categoria: 'SHORT FILM (Animated)',
+      ano: 1985
+    }
+  ]
+}
+_id: 'The Hurricane',
+  perdidas: [
+    {
+      categoria: 'ACTOR IN A SUPPORTING ROLE',
+      ano: 1938
+    },
+    {
+      categoria: 'MUSIC (Scoring)',
+      ano: 1938
+    },
+    {
+      categoria: 'ACTOR IN A LEADING ROLE',
+      ano: 2000
+    }
+  ],
+  vitorias: [
+    {
+      categoria: 'SOUND RECORDING',
+      ano: 1938
+    }
+  ]
+}
+_id: 'The Shop on Main Street',
+  perdidas: [
+    {
+      categoria: 'ACTRESS',
+      ano: 1967
+    }
+  ],
+  vitorias: [
+    {
+      categoria: 'FOREIGN LANGUAGE FILM',
+      ano: 1966
+    }
+  ]
+}
+ _id: 'Les Misérables',
+  perdidas: [
+    {
+      categoria: 'PRODUCTION DESIGN',
+      ano: 2013
+    },
+    {
+      categoria: 'COSTUME DESIGN',
+      ano: 2013
+    },
+    {
+      categoria: 'MUSIC (Original Song)',
+      ano: 2013
+    },
+    {
+      categoria: 'ACTOR IN A LEADING ROLE',
+      ano: 2013
+    },
+    {
+      categoria: 'BEST PICTURE',
+      ano: 2013
+    },
+    {
+      categoria: 'INTERNATIONAL FEATURE FILM',
+      ano: 2020
+    }
+  ],
+  vitorias: [
+    {
+      categoria: 'ACTRESS IN A SUPPORTING ROLE',
+      ano: 2013
+    },
+    {
+      categoria: 'MAKEUP AND HAIRSTYLING',
+      ano: 2013
+    },
+    {
+      categoria: 'SOUND MIXING',
+      ano: 2013
+    }
+  ]
+}
+ _id: 'Grand Canyon',
+  perdidas: [
+    {
+      categoria: 'WRITING (Screenplay Written Directly for the Screen)',
+      ano: 1992
+    }
+  ],
+  vitorias: [
+    {
+      categoria: 'SHORT SUBJECT (Live Action)',
+      ano: 1959
+    }
+  ]
+}
+_id: 'The Time Machine',
+  perdidas: [
+    {
+      categoria: 'MAKEUP',
+      ano: 2003
+    }
+  ],
+  vitorias: [
+    {
+      categoria: 'SPECIAL EFFECTS',
+      ano: 1961
+    }
+  ]
+}
+_id: 'Beauty and the Beast',
+  perdidas: [
+    {
+      categoria: 'SOUND',
+      ano: 1992
+    },
+    {
+      categoria: 'MUSIC (Original Song)',
+      ano: 1992
+    },
+    {
+      categoria: 'BEST PICTURE',
+      ano: 1992
+    },
+    {
+      categoria: 'MUSIC (Original Song)',
+      ano: 1992
+    },
+    {
+      categoria: 'COSTUME DESIGN',
+      ano: 2018
+    },
+    {
+      categoria: 'PRODUCTION DESIGN',
+      ano: 2018
+    }
+  ],
+  vitorias: [
+    {
+      categoria: 'MUSIC (Original Song)',
+      ano: 1992
+    },
+    {
+      categoria: 'MUSIC (Original Score)',
+      ano: 1992
+    }
+  ]
+}
+ _id: 'Pinocchio',
+  perdidas: [
+    {
+      categoria: 'MAKEUP AND HAIRSTYLING',
+      ano: 2021
+    },
+    {
+      categoria: 'COSTUME DESIGN',
+      ano: 2021
+    }
+  ],
+  vitorias: [
+    {
+      categoria: 'MUSIC (Original Score)',
+      ano: 1941
+    },
+    {
+      categoria: 'MUSIC (Song)',
+      ano: 1941
+    }
+  ]
+}
+_id: 'King Kong',
+  perdidas: [
+    {
+      categoria: 'CINEMATOGRAPHY',
+      ano: 1977
+    },
+    {
+      categoria: 'SOUND',
+      ano: 1977
+    },
+    {
+      categoria: 'ART DIRECTION',
+      ano: 2006
+    }
+  ],
+  vitorias: [
+    {
+      categoria: 'SPECIAL ACHIEVEMENT AWARD (Visual Effects)',
+      ano: 1977
+    },
+    {
+      categoria: 'VISUAL EFFECTS',
+      ano: 2006
+    },
+    {
+      categoria: 'SOUND EDITING',
+      ano: 2006
+    },
+    {
+      categoria: 'SOUND MIXING',
+      ano: 2006
+    }
+  ]
+}
+_id: 'Hamlet',
+  perdidas: [
+    {
+      categoria: 'MUSIC (Music Score of a Dramatic or Comedy Picture)',
+      ano: 1949
+    },
+    {
+      categoria: 'ACTRESS IN A SUPPORTING ROLE',
+      ano: 1949
+    },
+    {
+      categoria: 'DIRECTING',
+      ano: 1949
+    },
+    {
+      categoria: 'ART DIRECTION',
+      ano: 1991
+    },
+    {
+      categoria: 'COSTUME DESIGN',
+      ano: 1991
+    },
+    {
+      categoria: 'WRITING (Screenplay Based on Material Previously Produced or Published)',
+      ano: 1997
+    },
+    {
+      categoria: 'MUSIC (Original Dramatic Score)',
+      ano: 1997
+    },
+    {
+      categoria: 'ART DIRECTION',
+      ano: 1997
+    },
+    {
+      categoria: 'COSTUME DESIGN',
+      ano: 1997
+    }
+  ],
+  vitorias: [
+    {
+      categoria: 'COSTUME DESIGN (Black-and-White)',
+      ano: 1949
+    },
+    {
+      categoria: 'ART DIRECTION (Black-and-White)',
+      ano: 1949
+    },
+    {
+      categoria: 'ACTOR',
+      ano: 1949
+    },
+    {
+      categoria: 'BEST MOTION PICTURE',
+      ano: 1949
+    }
+  ]
+}
+_id: 'Sabrina',
+  perdidas: [
+    {
+      categoria: 'CINEMATOGRAPHY (Black-and-White)',
+      ano: 1955
+    },
+    {
+      categoria: 'DIRECTING',
+      ano: 1955
+    },
+    {
+      categoria: 'ACTRESS',
+      ano: 1955
+    },
+    {
+      categoria: 'ART DIRECTION (Black-and-White)',
+      ano: 1955
+    },
+    {
+      categoria: 'WRITING (Screenplay)',
+      ano: 1955
+    },
+    {
+      categoria: 'MUSIC (Original Song)',
+      ano: 1996
+    },
+    {
+      categoria: 'MUSIC (Original Musical or Comedy Score)',
+      ano: 1996
+    }
+  ],
+  vitorias: [
+    {
+      categoria: 'COSTUME DESIGN (Black-and-White)',
+      ano: 1955
+    }
+  ]
+}
+_id: 'A Place in the Sun',
+  perdidas: [
+    {
+      categoria: 'BEST MOTION PICTURE',
+      ano: 1952
+    },
+    {
+      categoria: 'ACTOR',
+      ano: 1952
+    },
+    {
+      categoria: 'ACTRESS',
+      ano: 1952
+    },
+    {
+      categoria: 'SHORT SUBJECT (Cartoon)',
+      ano: 1961
+    }
+  ],
+  vitorias: [
+    {
+      categoria: 'MUSIC (Music Score of a Dramatic or Comedy Picture)',
+      ano: 1952
+    },
+    {
+      categoria: 'WRITING (Screenplay)',
+      ano: 1952
+    },
+    {
+      categoria: 'COSTUME DESIGN (Black-and-White)',
+      ano: 1952
+    },
+    {
+      categoria: 'DIRECTING',
+      ano: 1952
+    },
+    {
+      categoria: 'FILM EDITING',
+      ano: 1952
+    },
+    {
+      categoria: 'CINEMATOGRAPHY (Black-and-White)',
+      ano: 1952
+    }
+  ]
+}
+_id: 'The Champ',
+  perdidas: [
+    {
+      categoria: 'OUTSTANDING PRODUCTION',
+      ano: 1932
+    },
+    {
+      categoria: 'DIRECTING',
+      ano: 1932
+    },
+    {
+      categoria: 'MUSIC (Original Score)',
+      ano: 1980
+    }
+  ],
+  vitorias: [
+    {
+      categoria: 'WRITING (Original Story)',
+      ano: 1932
+    },
+    {
+      categoria: 'ACTOR',
+      ano: 1932
+    }
+  ]
+}
+ _id: 'The Last of the Mohicans',
+  perdidas: [
+    {
+      categoria: 'ASSISTANT DIRECTOR',
+      ano: 1937
+    }
+  ],
+  vitorias: [
+    {
+      categoria: 'SOUND',
+      ano: 1993
+    }
+  ]
+}
+_id: 'Day for Night',
+  perdidas: [
+    {
+      categoria: 'WRITING (Original Screenplay)',
+      ano: 1975
+    },
+    {
+      categoria: 'ACTRESS IN A SUPPORTING ROLE',
+      ano: 1975
+    },
+    {
+      categoria: 'DIRECTING',
+      ano: 1975
+    }
+  ],
+  vitorias: [
+    {
+      categoria: 'FOREIGN LANGUAGE FILM',
+      ano: 1974
+    }
+  ]
+  db.oscar.aggregate([
+  real,
+  { $match: { nome_do_filme: { $ne: null } } },
+  { $group: {
+      _id: "$nome_do_filme",
+      perdidas: { $push: { $cond: [{ $in: ["$vencedor", [1, true]] }, "$$REMOVE", { categoria: "$categoria", ano: "$ano_cerimonia" }] } },
+      vitorias: { $push: { $cond: [{ $in: ["$vencedor", [1, true]] }, { categoria: "$categoria", ano: "$ano_cerimonia" }, "$$REMOVE"] } }
+  } },
+  { $match: { $expr: { $anyElementTrue: { $map: {
+      input: "$perdidas", as: "p",
+      in: { $anyElementTrue: { $map: {
+        input: "$vitorias", as: "w",
+        in: { $and: [ { $ne: ["$$p.ano", "$$w.ano"] }, { $ne: ["$$p.categoria", "$$w.categoria"] } ] }
+      } } }
+  } } } } },
+  { $project: { _id: 1, perdidas: 1, vitorias: 1 } }
+])
+
+  # Nível 12: Casos Práticos
+Cenário 1: Curadoria de Mostra de Cinema
+Você está organizando uma mostra de cinema e precisa selecionar filmes.
+
+# 12.1 Liste os 20 filmes mais premiados do Oscar para sua mostra.
+R:  _id: {
+    filme: 'Titanic',
+    ano: 1998
+  },
+  oscars: 11,
+  indicacoes: 14
+}
+ _id: {
+    filme: 'Ben-Hur',
+    ano: 1960
+  },
+  oscars: 11,
+  indicacoes: 12
+}
+ _id: {
+    filme: 'The Lord of the Rings: The Return of the King',
+    ano: 2004
+  },
+  oscars: 11,
+  indicacoes: 11
+  _id: {
+    filme: 'West Side Story',
+    ano: 1962
+  },
+  oscars: 10,
+  indicacoes: 11
+  _id: {
+    filme: 'The English Patient',
+    ano: 1997
+  },
+  oscars: 9,
+  indicacoes: 12
+   _id: {
+    filme: 'The Last Emperor',
+    ano: 1988
+  },
+  oscars: 9,
+  indicacoes: 9
+  _id: {
+    filme: 'Gigi',
+    ano: 1959
+  },
+  oscars: 9,
+  indicacoes: 9
+  _id: {
+    filme: 'My Fair Lady',
+    ano: 1965
+  },
+  oscars: 8,
+  indicacoes: 12
+   _id: {
+    filme: 'Gone with the Wind',
+    ano: 1940
+  },
+  oscars: 8,
+  indicacoes: 12
+   _id: {
+    filme: 'From Here to Eternity',
+    ano: 1954
+  },
+  oscars: 8,
+  indicacoes: 12
+}
+ _id: {
+    filme: 'Gandhi',
+    ano: 1983
+  },
+  oscars: 8,
+  indicacoes: 11
+}
+_id: {
+    filme: 'Amadeus',
+    ano: 1985
+  },
+  oscars: 8,
+  indicacoes: 10
+}
+_id: {
+    filme: 'Cabaret',
+    ano: 1973
+  },
+  oscars: 8,
+  indicacoes: 10
+}
+_id: {
+    filme: 'On the Waterfront',
+    ano: 1955
+  },
+  oscars: 8,
+  indicacoes: 10
+}
+ _id: {
+    filme: 'Slumdog Millionaire',
+    ano: 2009
+  },
+  oscars: 8,
+  indicacoes: 9
+}
+_id: {
+    filme: 'Shakespeare in Love',
+    ano: 1999
+  },
+  oscars: 7,
+  indicacoes: 13
+}
+ _id: {
+    filme: 'Oppenheimer',
+    ano: 2024
+  },
+  oscars: 7,
+  indicacoes: 13
+   _id: {
+    filme: 'Dances With Wolves',
+    ano: 1991
+  },
+  oscars: 7,
+  indicacoes: 12
+   _id: {
+    filme: "Schindler's List",
+    ano: 1994
+  },
+  oscars: 7,
+  indicacoes: 12
+  _id: {
+    filme: 'Out of Africa',
+    ano: 1986
+  },
+  oscars: 7,
+  indicacoes: 11
+
+db.oscar.aggregate([
+  ...porCategoria,
+  { $group: { _id: { filme: "$_id.filme", ano: "$_id.ano" }, oscars: { $sum: "$ganhou" }, indicacoes: { $sum: 1 } } },
+  { $sort: { oscars: -1, indicacoes: -1 } },
+  { $limit: 22 }
+])
+
+# 12.2 Selecione 5 filmes de cada década (1930s até 2020s) que ganharam pelo menos um Oscar.
+R: _id: 1930,
+  top5: [
+    {
+      filme: 'It Happened One Night',
+      ano: 1935,
+      oscars: 5
+    },
+    {
+      filme: 'The Informer',
+      ano: 1936,
+      oscars: 4
+    },
+    {
+      filme: 'Anthony Adverse',
+      ano: 1937,
+      oscars: 4
+    },
+    {
+      filme: 'Cimarron',
+      ano: 1931,
+      oscars: 3
+    },
+    {
+      filme: 'Cavalcade',
+      ano: 1933,
+      oscars: 3
+    }
+  ]
+}
+ _id: 1940,
+  top5: [
+    {
+      filme: 'Gone with the Wind',
+      ano: 1940,
+      oscars: 8
+    },
+    {
+      filme: 'Going My Way',
+      ano: 1945,
+      oscars: 7
+    },
+    {
+      filme: 'The Best Years of Our Lives',
+      ano: 1947,
+      oscars: 7
+    },
+    {
+      filme: 'Mrs. Miniver',
+      ano: 1943,
+      oscars: 6
+    },
+    {
+      filme: 'How Green Was My Valley',
+      ano: 1942,
+      oscars: 5
+    }
+  ]
+}
+ _id: 1950,
+  top5: [
+    {
+      filme: 'Gigi',
+      ano: 1959,
+      oscars: 9
+    },
+    {
+      filme: 'From Here to Eternity',
+      ano: 1954,
+      oscars: 8
+    },
+    {
+      filme: 'On the Waterfront',
+      ano: 1955,
+      oscars: 8
+    },
+    {
+      filme: 'The Bridge on the River Kwai',
+      ano: 1958,
+      oscars: 7
+    },
+    {
+      filme: 'All about Eve',
+      ano: 1951,
+      oscars: 6
+
+      _id: 1960,
+  top5: [
+    {
+      filme: 'Ben-Hur',
+      ano: 1960,
+      oscars: 11
+    },
+    {
+      filme: 'West Side Story',
+      ano: 1962,
+      oscars: 10
+    },
+    {
+      filme: 'My Fair Lady',
+      ano: 1965,
+      oscars: 8
+    },
+    {
+      filme: 'Lawrence of Arabia',
+      ano: 1963,
+      oscars: 7
+    },
+    {
+      filme: 'A Man for All Seasons',
+      ano: 1967,
+      oscars: 6
+      _id: 1970,
+  top5: [
+    {
+      filme: 'Cabaret',
+      ano: 1973,
+      oscars: 8
+    },
+    {
+      filme: 'Patton',
+      ano: 1971,
+      oscars: 7
+    },
+    {
+      filme: 'The Sting',
+      ano: 1974,
+      oscars: 7
+    },
+    {
+      filme: 'The Godfather Part II',
+      ano: 1975,
+      oscars: 6
+    },
+    {
+      filme: 'Star Wars',
+      ano: 1978,
+      oscars: 6
+
+       _id: 1980,
+  top5: [
+    {
+      filme: 'The Last Emperor',
+      ano: 1988,
+      oscars: 9
+    },
+    {
+      filme: 'Gandhi',
+      ano: 1983,
+      oscars: 8
+    },
+    {
+      filme: 'Amadeus',
+      ano: 1985,
+      oscars: 8
+    },
+    {
+      filme: 'Out of Africa',
+      ano: 1986,
+      oscars: 7
+    },
+    {
+      filme: 'Kramer vs. Kramer',
+      ano: 1980,
+      oscars: 5
+       _id: 1990,
+  top5: [
+    {
+      filme: 'Titanic',
+      ano: 1998,
+      oscars: 11
+    },
+    {
+      filme: 'The English Patient',
+      ano: 1997,
+      oscars: 9
+    },
+    {
+      filme: 'Dances With Wolves',
+      ano: 1991,
+      oscars: 7
+    },
+    {
+      filme: "Schindler's List",
+      ano: 1994,
+      oscars: 7
+    },
+    {
+      filme: 'Shakespeare in Love',
+      ano: 1999,
+      oscars: 7
+      _id: 2000,
+  top5: [
+    {
+      filme: 'The Lord of the Rings: The Return of the King',
+      ano: 2004,
+      oscars: 11
+    },
+    {
+      filme: 'Slumdog Millionaire',
+      ano: 2009,
+      oscars: 8
+    },
+    {
+      filme: 'Chicago',
+      ano: 2003,
+      oscars: 6
+    },
+    {
+      filme: 'American Beauty',
+      ano: 2000,
+      oscars: 5
+    },
+    {
+      filme: 'Gladiator',
+      ano: 2001,
+      oscars: 5
+      _id: 2010,
+  top5: [
+    {
+      filme: 'Gravity',
+      ano: 2014,
+      oscars: 7
+    },
+    {
+      filme: 'The Hurt Locker',
+      ano: 2010,
+      oscars: 6
+    },
+    {
+      filme: 'Mad Max: Fury Road',
+      ano: 2016,
+      oscars: 6
+    },
+    {
+      filme: 'La La Land',
+      ano: 2017,
+      oscars: 6
+    },
+    {
+      filme: 'The Artist',
+      ano: 2012,
+      oscars: 5
+      _id: 2020,
+  top5: [
+    {
+      filme: 'Everything Everywhere All at Once',
+      ano: 2023,
+      oscars: 7
+    },
+    {
+      filme: 'Oppenheimer',
+      ano: 2024,
+      oscars: 7
+    },
+    {
+      filme: 'Dune',
+      ano: 2022,
+      oscars: 6
+    },
+    {
+      filme: 'One Battle After Another',
+      ano: 2026,
+      oscars: 6
+    },
+    {
+      filme: 'Anora',
+      ano: 2025,
+      oscars: 5
+
+db.oscar.aggregate([
+  ...porCategoria,
+  { $group: { _id: { filme: "$_id.filme", ano: "$_id.ano" }, oscars: { $sum: "$ganhou" } } },
+  { $match: { oscars: { $gte: 1 }, "_id.ano": { $gte: 1930 } } },
+  { $sort: { oscars: -1, "_id.ano": 1 } },
+  { $group: {
+      _id: { $subtract: ["$_id.ano", { $mod: ["$_id.ano", 10] }] },
+      filmes: { $push: { filme: "$_id.filme", ano: "$_id.ano", oscars: "$oscars" } }
+  } },
+  { $project: { top5: { $slice: ["$filmes", 5] } } },
+  { $sort: { _id: 1 } }
+])
+
+# 12.3 Crie uma lista de "clássicos esquecidos" - filmes que ganharam Oscars, mas são de mais de 50 anos atrás.
+R:_id: {
+    filme: 'The Last Command',
+    ano: 1928
+  },
+  oscars: 1,
+  indicacoes: 2
+}
+_id: {
+    filme: 'Underworld',
+    ano: 1928
+  },
+  oscars: 1,
+  indicacoes: 1
+   _id: {
+    filme: 'Two Arabian Knights',
+    ano: 1928
+  },
+  oscars: 1,
+  indicacoes: 1
+  _id: {
+    filme: 'The Dove;',
+    ano: 1928
+  },
+  oscars: 1,
+  indicacoes: 1
+  _id: {
+    filme: 'The Patriot',
+    ano: 1929
+  },
+  oscars: 1,
+  indicacoes: 5
+  _id: {
+    filme: 'The Broadway Melody',
+    ano: 1929
+  },
+  oscars: 1,
+  indicacoes: 3
+  _id: {
+    filme: 'Coquette',
+    ano: 1929
+  },
+  oscars: 1,
+  indicacoes: 1
+  _id: {
+    filme: 'The Divine Lady',
+    ano: 1929
+  },
+  oscars: 1,
+  indicacoes: 3
+   _id: {
+    filme: 'White Shadows in the South Seas',
+    ano: 1929
+  },
+  oscars: 1,
+  indicacoes: 1
+  _id: {
+    filme: 'In Old Arizona',
+    ano: 1929
+  },
+  oscars: 1,
+  indicacoes: 4
+  _id: {
+    filme: 'The Bridge of San Luis Rey',
+    ano: 1929
+  },
+  oscars: 1,
+  indicacoes: 1
+  _id: {
+    filme: 'Disraeli',
+    ano: 1930
+  },
+  oscars: 1,
+  indicacoes: 3
+  _id: {
+    filme: 'The Divorcee',
+    ano: 1930
+  },
+  oscars: 1,
+  indicacoes: 4
+}
+_id: {
+    filme: 'King of Jazz',
+    ano: 1930
+  },
+  oscars: 1,
+  indicacoes: 1
+   _id: {
+    filme: 'With Byrd at the South Pole',
+    ano: 1930
+  },
+  oscars: 1,
+  indicacoes: 1
+
+  _id: {
+    filme: 'Skippy',
+    ano: 1931
+  },
+  oscars: 1,
+  indicacoes: 4
+}
+_id: {
+    filme: 'A Free Soul',
+    ano: 1931
+  },
+  oscars: 1,
+  indicacoes: 3
+  _id: {
+    filme: 'The Dawn Patrol',
+    ano: 1931
+  },
+  oscars: 1,
+  indicacoes: 1
+  _id: {
+    filme: 'Min and Bill',
+    ano: 1931
+  },
+  oscars: 1,
+  indicacoes: 1
+  _id: {
+    filme: 'NULL',
+    ano: 1931
+  },
+  oscars: 1,
+  indicacoes: 1
+
+const corte = new Date().getFullYear() - 50;
+
+db.oscar.aggregate([
+  ...porCategoria,
+  { $group: { _id: { filme: "$_id.filme", ano: "$_id.ano" }, oscars: { $sum: "$ganhou" }, indicacoes: { $sum: 1 } } },
+  { $match: { oscars: 1, "_id.ano": { $lt: corte } } },
+  { $sort: { "_id.ano": 1 } },
+  { $limit: 50 }
+])
+
+# Cenário 2: Análise para Documentário
+Você está produzindo um documentário sobre a história do Oscar.
+
+# 12.4 Identifique os 5 momentos mais importantes (cerimônias com mais premiações históricas).
+
+# 12.5 Liste todos os "primeiros" históricos (primeira mulher a ganhar melhor direção, primeiro ator negro, etc.) - use sua criatividade para encontrar esses marcos.
+
+# 12.6 Encontre casos de "injustiça" - filmes/atores muito indicados, mas que nunca ganharam.
+
+# Cenário 3: Estatísticas para Apostas
+Você trabalha para um site de apostas e precisa de estatísticas.
+
+# 12.7 Qual a probabilidade histórica de um filme indicado em 10 categorias ganhar Melhor Filme?
+
+# 12.8 Atores que ganharam Melhor Ator tendem a ter quantas indicações antes da primeira vitória?
+
+# 12.9 Qual categoria tem os vencedores mais "previsíveis" (mesmo artista/filme ganha múltiplas vezes)?
+
+
