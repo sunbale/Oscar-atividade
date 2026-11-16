@@ -2928,18 +2928,1083 @@ db.oscar.aggregate([
 Você está produzindo um documentário sobre a história do Oscar.
 
 # 12.4 Identifique os 5 momentos mais importantes (cerimônias com mais premiações históricas).
+R:_id: {
+    filme: 'Titanic',
+    ano: 1998
+  },
+  oscars: 11
+}
+ _id: {
+    filme: 'Ben-Hur',
+    ano: 1960
+  },
+  oscars: 11
+  _id: {
+    filme: 'The Lord of the Rings: The Return of the King',
+    ano: 2004
+  },
+  oscars: 11
+}
+ _id: {
+    filme: 'West Side Story',
+    ano: 1962
+  },
+  oscars: 10
+   _id: {
+    filme: 'The Last Emperor',
+    ano: 1988
+  },
+  oscars: 9
+db.oscar.aggregate([
+  ...porCategoria,
+  { $group: { _id: { filme: "$_id.filme", ano: "$_id.ano" }, oscars: { $sum: "$ganhou" } } },
+  { $sort: { oscars: -1 } },
+  { $limit: 8 }
+])
 
 # 12.5 Liste todos os "primeiros" históricos (primeira mulher a ganhar melhor direção, primeiro ator negro, etc.) - use sua criatividade para encontrar esses marcos.
+R:     ano_cerimonia: 1940,
+    Hattie McDaniel (1940): primeira pessoa negra indicada e vencedora do Oscar, como atriz coadjuvante em Gone with the Wind.
+Sidney Poitier (1964): primeiro homem negro a vencer Melhor Ator.
+Halle Berry (2002): primeira mulher negra a vencer Melhor Atriz.
+Lina Wertmüller (1977): primeira mulher indicada a Melhor Direção.
+Kathryn Bigelow (2010): primeira mulher a vencer Melhor Direção.
+Beauty and the Beast (1992): primeira animação indicada a Melhor Filme.
+Parasite (2020): primeiro filme em língua não inglesa a vencer Melhor Filme.
+Fernanda Montenegro (1999), Fernanda Torres (2025) e Wagner Moura (2026): brasileiros indicados em categorias de atuação
+
+const marcos = [
+  ["Hattie McDaniel", /^ACTRESS/],
+  ["Sidney Poitier", /^ACTOR/],
+  ["Halle Berry", /^ACTRESS/],
+  ["Lina Wertmüller", /DIRECTING/],
+  ["Kathryn Bigelow", /DIRECTING/],
+  ["Chloé Zhao", /DIRECTING/],
+  ["Fernanda Montenegro", /^ACTRESS/],
+  ["Fernanda Torres", /^ACTRESS/],
+  ["Wagner Moura", /^ACTOR/]
+];
+marcos.forEach(([nome, cat]) => {
+  printjson(db.oscar.find(
+    { nome_do_indicado: nome, categoria: cat },
+    { _id: 0, nome_do_indicado: 1, ano_cerimonia: 1, categoria: 1, nome_do_filme: 1, vencedor: 1 }
+  ).sort({ ano_cerimonia: 1 }).toArray());
+});
 
 # 12.6 Encontre casos de "injustiça" - filmes/atores muito indicados, mas que nunca ganharam.
+R: _id: {
+    filme: 'True Grit',
+    ano: 2011
+  },
+  indicacoes: 10,
+  oscars: 0
+}
+  _id: {
+    filme: 'Killers of the Flower Moon',
+    ano: 2024
+  },
+  indicacoes: 10,
+  oscars: 0
+}
+  _id: {
+    filme: 'Gangs of New York',
+    ano: 2003
+  },
+  indicacoes: 10,
+  oscars: 
+    _id: {
+    filme: 'American Hustle',
+    ano: 2014
+  },
+  indicacoes: 10,
+  oscars: 0
+    _id: {
+    filme: 'The Turning Point',
+    ano: 1978
+  },
+  indicacoes: 10,
+  oscars: 0
+    _id: {
+    filme: 'The Color Purple',
+    ano: 1986
+  },
+  indicacoes: 10,
+  oscars: 0
+}
+ _id: {
+    filme: 'The Irishman',
+    ano: 2020
+  },
+  indicacoes: 9,
+  oscars: 0
+    _id: {
+    filme: 'Marty Supreme',
+    ano: 2026
+  },
+  indicacoes: 9,
+  oscars: 0
+    _id: {
+    filme: 'The Elephant Man',
+    ano: 1981
+  },
+  indicacoes: 8,
+  oscars: 0
+
+  id: {
+    filme: "The Nun's Story",
+    ano: 1960
+  },
+  indicacoes: 8,
+  oscars: 0
+   _id: {
+    filme: 'Elvis',
+    ano: 2023
+  },
+  indicacoes: 8,
+  oscars: 0
+    _id: {
+    filme: 'The Banshees of Inisherin',
+    ano: 2023
+  },
+  indicacoes: 8,
+  oscars: 0
+   _id: {
+    filme: 'The Remains of the Day',
+    ano: 1994
+  },
+  indicacoes: 8,
+  oscars: 0
+   _id: {
+    filme: 'The Sand Pebbles',
+    ano: 1967
+  },
+  indicacoes: 8,
+  oscars: 0
+   _id: {
+    filme: 'Ragtime',
+    ano: 1982
+  },
+  indicacoes: 8,
+  oscars: 0
+}
+  _id: {
+    filme: 'The Little Foxes',
+    ano: 1942
+  },
+  indicacoes: 8,
+  oscars: 0
+    _id: {
+    filme: 'A Complete Unknown',
+    ano: 2025
+  },
+  indicacoes: 8,
+  oscars: 0
+    _id: {
+    filme: 'Star!',
+    ano: 1969
+  },
+  indicacoes: 7,
+  oscars: 0
+   _id: {
+    filme: 'Quo Vadis',
+    ano: 1952
+  },
+  indicacoes: 7,
+  oscars: 0
+   _id: {
+    filme: 'The Martian',
+    ano: 2016
+  },
+  indicacoes: 7,
+  oscars: 0
+  
+db.oscar.aggregate([
+  ...porCategoria,
+  { $group: { _id: { filme: "$_id.filme", ano: "$_id.ano" }, indicacoes: { $sum: 1 }, oscars: { $sum: "$ganhou" } } },
+  { $match: { oscars: 0, indicacoes: { $gte: 7 } } },
+  { $sort: { indicacoes: -1 } }
+])
 
 # Cenário 3: Estatísticas para Apostas
 Você trabalha para um site de apostas e precisa de estatísticas.
 
 # 12.7 Qual a probabilidade histórica de um filme indicado em 10 categorias ganhar Melhor Filme?
+R: filmes: 92,
+  venceram: 36,
+  probabilidade_percentual: 39.130434782608695
+
+db.oscar.aggregate([
+  ...porCategoria,
+  { $group: {
+      _id: { filme: "$_id.filme", ano: "$_id.ano" },
+      indicacoes: { $sum: 1 },
+      melhor_filme: { $max: { $cond: [{ $in: ["$_id.categoria", pic] }, "$ganhou", 0] } }
+  } },
+  { $match: { indicacoes: { $gte: 10 } } },
+  { $group: { _id: null, filmes: { $sum: 1 }, venceram: { $sum: "$melhor_filme" } } },
+  { $project: {
+      _id: 0, filmes: 1, venceram: 1,
+      probabilidade_percentual: { $multiply: [{ $divide: ["$venceram", "$filmes"] }, 100] }
+  } }
+])
 
 # 12.8 Atores que ganharam Melhor Ator tendem a ter quantas indicações antes da primeira vitória?
+R:  atores: 88,
+  media_indicacoes_antes: 0.8409090909090909
+  db.oscar.aggregate([
+  { $match: { categoria: { $in: ["ACTOR", "ACTOR IN A LEADING ROLE"] } } },
+  { $group: {
+      _id: "$nome_do_indicado",
+      anos: { $push: "$ano_cerimonia" },
+      primeira_vitoria: { $min: { $cond: [{ $in: ["$vencedor", [1, true]] }, "$ano_cerimonia", null] } }
+  } },
+  { $match: { primeira_vitoria: { $ne: null } } },
+  { $addFields: { antes: { $size: { $filter: { input: "$anos", as: "a", cond: { $lt: ["$$a", "$primeira_vitoria"] } } } } } },
+  { $group: { _id: null, atores: { $sum: 1 }, media_indicacoes_antes: { $avg: "$antes" } } }
+])
 
 # 12.9 Qual categoria tem os vencedores mais "previsíveis" (mesmo artista/filme ganha múltiplas vezes)?
+R: _id: 'SHORT SUBJECT (Cartoon)',
+  campeao: 'Walt Disney, Producer',
+  maior_repeticao: 12,
+  total_vitorias: 39,
+  vencedores_diferentes: 18,
+  concentracao: 0.3076923076923077
+
+db.oscar.aggregate([
+  real,
+  { $match: { vencedor: venceu, nome_do_indicado: { $ne: null } } },
+  { $group: { _id: { categoria: "$categoria", nome: "$nome_do_indicado" }, vitorias: { $sum: 1 } } },
+  { $sort: { vitorias: -1 } },
+  { $group: {
+      _id: "$_id.categoria",
+      campeao: { $first: "$_id.nome" },
+      maior_repeticao: { $max: "$vitorias" },
+      total_vitorias: { $sum: "$vitorias" },
+      vencedores_diferentes: { $sum: 1 }
+  } },
+  { $match: { total_vitorias: { $gte: 10 } } },
+  { $addFields: { concentracao: { $divide: ["$maior_repeticao", "$total_vitorias"] } } },
+  { $sort: { maior_repeticao: -1 } },
+  { $limit: 10 }
+])
+# Nível 13: Queries Criativas
+# 13.1 Encontre todos os filmes cujo nome começa com "The" e ganharam pelo menos um Oscar.
+R:
+
+  'The Abyss',
+  'The Accidental Tourist',
+  'The Accused',
+  'The Adventures of Don Juan',
+  'The Adventures of Priscilla, Queen of the Desert',
+  'The Adventures of Robin Hood',
+  'The African Queen',
+  'The Age of Innocence',
+  'The Alamo',
+  'The Alaskan Eskimo',
+  'The Anderson Platoon',
+  'The Apartment',
+  'The Appointments of Dennis Jennings',
+  'The Artist',
+  'The Assault',
+  'The Aviator',
+  'The Awful Truth',
+  'The Bachelor and the Bobby-Soxer',
+  'The Bad and the Beautiful',
+  'The Barbarian Invasions',
+  'The Barefoot Contessa',
+  'The Battle of Midway',
+  "The Bells of St. Mary's",
+  'The Bespoke Overcoat',
+  'The Best Years of Our Lives',
+  'The Big Broadcast of 1938',
+  'The Big Country',
+  'The Big House',
+  'The Big Short',
+  "The Bishop's Wife",
+  'The Black Stallion',
+  'The Black Swan',
+  'The Blind Side',
+  'The Blood of Yingzhou District',
+  'The Bolero',
+  'The Bourne Ultimatum',
+  'The Box',
+  'The Boy and the Heron',
+  'The Boy, the Mole, the Fox and the Horse',
+  'The Brave One',
+  'The Bridge of San Luis Rey',
+  'The Bridge on the River Kwai',
+  'The Bridges at Toko-Ri',
+  'The Broadway Melody',
+  'The Brutalist',
+  'The Buddy Holly Story',
+  'The Candidate',
+  'The Cat Concerto',
+  'The Champ',
+  'The Charge of the Light Brigade',
+  'The Chicken (Le Poulet)',
+  'The Chronicles of Narnia: The Lion, the Witch and the Wardrobe',
+  'The ChubbChubbs!',
+  'The Cider House Rules',
+  'The Color of Money',
+  'The Constant Gardener',
+  'The Counterfeiters',
+  'The Country Cousin',
+  'The Country Girl',
+  'The Cove',
+  'The Cowboy and the Lady',
+  'The Critic',
+  'The Crunch Bird',
+  'The Crying Game',
+  'The Curious Case of Benjamin Button',
+  'The Danish Girl',
+  'The Danish Poet',
+  'The Dark Angel',
+  'The Dark Knight',
+  'The Dawn Patrol',
+  'The Deer Hunter',
+  'The Defiant Ones',
+  'The Departed',
+  'The Descendants',
+  'The Diary of Anne Frank',
+  'The Dirty Dozen',
+  'The Discreet Charm of the Bourgeoisie',
+  'The Divine Lady',
+  'The Divorcee',
+  'The Dollar Bottom',
+  'The Dot and the Line',
+  'The Dove;',
+  'The Duchess',
+  'The Eleanor Roosevelt Story',
+  'The Elephant Whisperers',
+  'The Empire Strikes Back',
+  'The End of the Game',
+  'The Enemy Below',
+  'The English Patient',
+  'The Exorcist',
+  'The Eyes of Tammy Faye',
+  'The Face of Lincoln',
+  'The Facts of Life',
+  'The Fantastic Flying Books of Mr. Morris Lessmore',
+  "The Farmer's Daughter",
+  'The Father',
+  'The Favourite',
+  'The Fighter',
+  'The Fighting Lady',
+  'The Fisher King',
+  'The Flight of the Gossamer Condor',
+  'The Fly',
+  'The Fog of War',
+  'The Fortune Cookie',
+  'The French Connection',
+  'The Fugitive',
+  'The Full Monty',
+  'The Garden of the Finzi Continis',
+  'The Gay Divorcee',
+  'The Ghost and the Darkness',
+  'The Girl Who Cried Pearls',
+  'The Girl with the Dragon Tattoo',
+  'The Glenn Miller Story',
+  'The Godfather',
+  'The Godfather Part II',
+  'The Golden Compass',
+  'The Golden Fish',
+  'The Good Earth',
+  'The Goodbye Girl',
+  'The Graduate',
+  'The Grand Budapest Hotel',
+  'The Grapes of Wrath',
+  'The Great American Cowboy',
+  'The Great Beauty',
+  'The Great Caruso',
+  'The Great Gatsby',
+  'The Great Lie',
+  'The Great McGinty',
+  'The Great Race',
+  'The Great Waltz',
+  'The Great Ziegfeld',
+  'The Greatest Show on Earth',
+  'The Guns of Navarone',
+  'The Harvey Girls',
+  'The Hateful Eight',
+  'The Heiress',
+  'The Hellstrom Chronicle',
+  'The Help',
+  'The High and the Mighty',
+  'The Hindenburg',
+  'The Holdovers',
+  'The Hole',
+  'The Horse with the Flying Tail',
+  'The Hospital',
+  'The Hours',
+  'The House on 92nd Street',
+  'The Human Comedy',
+  'The Hunt for Red October',
+  'The Hurricane',
+  'The Hurt Locker',
+  'The Hustler',
+  'The Imitation Game',
+  'The Incredibles',
+  'The Informer',
+  'The Invaders',
+  'The Iron Lady',
+  'The Johnstown Flood',
+  'The Joker Is Wild',
+  'The Jolson Story',
+  'The Jungle Book',
+  'The Killing Fields',
+  'The King and I',
+  "The King's Speech",
+  'The Lady in Number 6: Music Saved My Life',
+  'The Last Command',
+  'The Last Days',
+  'The Last Emperor',
+  'The Last King of Scotland',
+  'The Last Picture Show',
+  'The Last Repair Shop',
+  'The Last of the Mohicans',
+  'The Lavender Hill Mob',
+  'The Life of Emile Zola',
+  'The Lion King',
+  'The Lion in Winter',
+  'The Little Mermaid',
+  'The Little Orphan',
+  'The Lives of Others',
+  'The Lives of a Bengal Lancer',
+  'The Living Desert',
+  'The Long Goodbye',
+  'The Long Way Home',
+  'The Longest Day',
+  'The Lord of the Rings: The Fellowship of the Ring',
+  'The Lord of the Rings: The Return of the King',
+  'The Lord of the Rings: The Two Towers',
+  'The Lost Thing',
+  'The Lost Weekend',
+  'The Lunch Date',
+  'The Madness of King George',
+  'The Magic Machines',
+  'The Man Who Knew Too Much',
+  'The Man Who Planted Trees',
+  'The Man Who Skied down Everest',
+  'The Matrix',
+  'The Merry Widow',
+  'The Merry Wives of Windsor Overture',
+  'The Milagro Beanfield War',
+  'The Milky Way',
+  'The Miracle Worker',
+  'The Mission',
+  'The Moon and the Son: An Imagined Conversation',
+  'The More the Merrier',
+  'The Motorcycle Diaries',
+  'The Muppets',
+  'The Music Box',
+  'The Naked City',
+  "The Neighbors' Window",
+  'The New Tenants',
+  'The Night of the Iguana',
+  'The Nights of Cabiria',
+  'The Nutty Professor',
+  'The Official Story',
+  'The Old Man and the Sea',
+  'The Old Mill',
+  'The Omen',
+  'The Only Girl in the Orchestra',
+  'The Paleface',
+  'The Panama Deception',
+  'The Paper Chase',
+  'The Patriot',
+  'The Personals: Improvisations on Romance in the Golden Years',
+  'The Philadelphia Story',
+  'The Phone Call',
+  'The Pianist',
+  'The Piano',
+  'The Picture of Dorian Gray',
+  'The Pink Phink',
+  'The Poseidon Adventure',
+  'The Postman (Il Postino)',
+  'The Power of the Dog',
+  'The Pride of the Yankees',
+  'The Prime of Miss Jean Brodie',
+  'The Prince of Egypt',
+  'The Private Life of Henry VIII',
+  'The Private Life of the Gannets',
+  'The Producers',
+  'The Public Pays',
+  'The Queen',
+  'The Queen of Basketball',
+  'The Quiet Man',
+  'The Rains Came',
+  "The Razor's Edge",
+  'The Reader',
+  'The Red Balloon',
+  'The Red Shoes',
+  'The Red Violin',
+  'The Redwoods',
+  'The Resurrection of Broncho Billy',
+  'The Revenant',
+  'The Right Stuff',
+  'The River',
+  'The Robe',
+  'The Rose Tattoo',
+  'The Salesman',
+  'The Sand Castle',
+  'The Sandpiper',
+  'The Scoundrel',
+  'The Sea Inside',
+  'The Sea around Us',
+  'The Search',
+  'The Secret Land',
+  'The Secret in Their Eyes',
+  'The Seventh Veil',
+  'The Shape of Water',
+  'The Shop on Main Street',
+  'The Shore',
+  'The Silence of the Lambs',
+  'The Silent Child',
+  'The Silent World',
+  'The Sin of Madelon Claudet',
+  'The Singers',
+  'The Snake Pit',
+  'The Social Network',
+  'The Solid Gold Cadillac',
+  'The Song of Bernadette',
+  'The Sound of Music',
+  'The Sting',
+  'The Stone Carvers',
+  'The Story of Louis Pasteur',
+  'The Stratton Story',
+  'The Subject Was Roses',
+  'The Substance',
+  'The Sunshine Boys',
+  'The Ten Commandments',
+  'The Ten-Year Lunch: The Wit and Legend of the Algonquin Round Table',
+  'The Theory of Everything',
+  'The Thief of Bagdad',
+  'The Third Man',
+  'The Thomas Crown Affair',
+  'The Three Faces of Eve',
+  'The Three Little Pigs',
+  'The Time Machine',
+  'The Times of Harvey Milk',
+  'The Tin Drum',
+  'The Titan: Story of Michelangelo',
+  'The Tortoise and the Hare',
+  'The Towering Inferno',
+  'The Treasure of the Sierra Madre',
+  'The Trip to Bountiful',
+  'The True Glory',
+  'The True Story of the Civil War',
+  'The Two Mouseketeers',
+  'The Ugly Duckling',
+  'The Untouchables',
+  'The Usual Suspects',
+  'The V.I.P.s',
+  'The Vanishing Prairie',
+  'The Virgin Spring',
+  'The War Game',
+  'The War of the Worlds',
+  'The Way We Were',
+  'The Westerner',
+  'The Wetback Hound',
+  'The Whale',
+  'The White Helmets',
+  'The Windshield Wiper',
+  'The Wizard of Oz',
+  'The Wolfman',
+  'The Woman in Red',
+  'The Wonderful Story of Henry Sugar',
+  'The Wonderful World of the Brothers Grimm',
+  'The Wrong Trousers',
+  'The Year of Living Dangerously',
+  'The Yearling',
+  'The Young Victoria',
+  'The Zone of Interest'
+
+  db.oscar.distinct("nome_do_filme", { nome_do_filme: /^The /, vencedor: venceu })
+
+# 13.2 Liste todos os indicados cujo nome contém um sobrenome composto (ex: "Mary-Louise Parker").
+R:  '20th Century-Fox',
+  '20th Century-Fox Film Corporation in recognition of their imagination',
+  '20th Century-Fox Studio',
+  '20th Century-Fox Studio Music Department, Louis Silvers, head of department  (no composer credit)',
+  '20th Century-Fox Studio Sound Department',
+  '20th Century-Fox Studio Sound Department, Carl Faulkner, Sound Director',
+  '20th Century-Fox Studio Sound Department, Carl W. Faulkner, Sound Director',
+  '20th Century-Fox Studio Sound Department, E. H. Hansen, Sound Director',
+  '20th Century-Fox Studio Sound Department, Edmund H. Hansen, Sound Director',
+  '20th Century-Fox Studio Sound Department, James P. Corcoran, Sound Director',
+  '20th Century-Fox Studio Sound Department, James P. Corcoran, Sound Director; and Todd-AO Sound Department, Fred Hynes, Sound Director',
+  '20th Century-Fox Studio Sound Department, Thomas T. Moulton, Sound Director',
+  'Ai-Ling Lee and Mildred Iatrou Morgan',
+  'Alain Gagnol and Jean-Loup Felicioli',
+  'Alain Robbe-Grillet',
+  'Alison Nigh-Strelich, Producer',
+  'Ana López-Puigcerver, David Martí and Montse Ribé',
+  'Anders Østergaard and Lise Lense-Møller',
+  'Andrew Coats and Lou Hamou-Lhadj',
+  'Andy Nelson, Ai-Ling Lee and Steve A. Morrow',
+  'Ann-Margret',
+  'Anna Biedrzycka-Sheppard',
+  'Anne Rosellini and Alix Madigan-Yorkin, Producers',
+  'Anne-Marie Marchand',
+  'Anne-Sophie Bion and Michel Hazanavicius',
+  'Anthony Havelock-Allan and John Brabourne, Producers',
+  'Argosy-Wanger',
+  'Armin Mueller-Stahl',
+  'Art Direction:  Aline Bonetto; Set Decoration:  Marie-Laure Valla',
+  'Art Direction:  Gianni Quaranta, Brian Ackland-Snow;  Set Decoration:  Brian Savegar, Elio Altamura',
+  'Art Direction:  Henry Bumstead;  Set Decoration:  Janice Blackie-Goodine',
+  'Art Direction:  Jean Rabasse;  Set Decoration:  Françoise Benoît-Fresco',
+  'Art Direction:  Mark-Lee Kirk;  Interior Decoration:  Victor A. Gangelin',
+  'Art Direction:  Max Parker, Mark-Lee Kirk;  Interior Decoration:  Casey Roberts',
+  'Art Direction:  Urie McCleary, Gil Parrondo;  Set Decoration:  Antonio Mateos, Pierre-Louis Thevenet',
+  'Arthur Freed for distinguished service to the Academy and the production of six top-rated Awards telecasts.',
+  'Asif Kapadia and James Gay-Rees',
+  'Bill Westenhofer, Guillaume Rocheron, Erik-Jan De Boer and Donald R. Elliott',
+  'Bruno Collet and Jean-François Le Corre',
+  'Bunny Dull (Metro-Goldwyn-Mayer)',
+  'Catherine Zeta-Jones',
+  'Cedric Nicolas-Troyan, Philip Brennan, Neil Corbould and Michael Dawson',
+  'Charles Dorian (Metro-Goldwyn-Mayer)',
+  'Charley Henley, Luc-Ewen Martin-Fenouillet, Simone Coco and Neil Corbould',
+  'Ciné-Documents',
+  'Claude Berri, Producer;  Timothy Burrill, Co-Producer',
+  'Costa-Gavras',
+  'Costa-Gavras, Donald Stewart',
+  'Daniel Day-Lewis',
+  'Daniel Junge and Sharmeen Obaid-Chinoy',
+  'David Lean, Anthony Havelock-Allan, Ronald Neame',
+  'David Parfitt, Jean-Louis Livi and Philippe Carcassonne, Producers',
+  'Dee Hibbert-Jones and Nomi Talisman',
+  'Denmark; O. Dalsgaard-Olsen, Producer',
+  'Dido-Film-GmbH',
+  'Domee Shi and Becky Neiman-Cobb',
+  'Douglas Fairbanks (Commemorative Award) - recognizing the unique and outstanding contribution of Douglas Fairbanks',
+  'Dr. Frank Daniel and Izak Ben-Meir, Producers',
+  'Elizabeth Yianni-Georgiou and David White',
+  'Federal Republic of Germany - West; Gyula Trebitsch and Walter Koppel, Producers',
+  'Forbidden Games - Best Foreign Language Film first released in the United States during 1952.',
+  'Francis Coppola, Producer;  Fred Roos, Gray Frederickson and Tom Sternberg, Co-Producers',
+  'Francis Ford Coppola, Producer;  Fred Roos, Co-Producer',
+  'Francis Ford Coppola, Producer;  Gary Kurtz, Co-Producer',
+  'Francis Ford Coppola, Producer;  Gray Frederickson and Fred Roos, Co-Producers',
+  'Francois Truffaut, Jean-Louis Richard, Suzanne Schiffman',
+  'Gary Gilbert, Jeffrey Levy-Hinte and Celine Rattray, Producers',
+  'Gate of Hell - Best Foreign Language Film first released in the United States during 1954.',
+  'Gian-Carlo Menotti',
+  'Harman-Ising',
+  'Henry-Alex Rubin and Dana Adam Shapiro',
+  'Howard Hawks - A master American filmmaker whose creative efforts hold a distinguished place in world cinema.',
+  'J. Arthur Rank-Archers',
+  'J. Arthur Rank-Cineguild',
+  'J. Arthur Rank-Two Cities Films',
+  'Jacques-Yves Cousteau, Producer',
+  'James Baskett for his able and heart-warming characterization of Uncle Remus',
+  'Jean Hersholt - in recognition of his service to the Academy during four terms as president.',
+  'Jean Renoir - a genius who',
+  'Jean-Charles Meunier, Producer',
+  'Jean-Claude Carrière',
+  'Jean-Claude Carrière, Philip Kaufman',
+  'Jean-Luc Godard for passion. For confrontation. For a new kind of cinema.',
+  'Jean-Paul Rappeneau, Ariane Mnouchkine, Daniel Boulanger, Philippe De Broca',
+  'Jean-Pierre Dorleac',
+  'Jean-Pierre Dutilleux, Barry Williams and Michel Gast, Producers',
+  'Jean-Xavier de Lestrade, Denis Poncet',
+  'Jessica Kingdon, Kira Simon-Kennedy and Nathan Truesdell',
+  'Joel Harlow and Gloria Pasqua-Casny',
+  'John S. Waters (Metro-Goldwyn-Mayer)',
+  'Jon Taylor, Frank A. Montaño, Ai-Ling Lee and Mary H. Ellis',
+  'Jorge Semprun, Costa-Gavras',
+  'Karen Hartley Thomas, Suzi Battersby and Ashra Kelly-Blue',
+  'Kazu Hiro, Kay Georgiou and Lori McCoy-Bell',
+  'Keisha Castle-Hughes',
+  'Kodi Smit-McPhee',
+  'Lee Daniels, Sarah Siegel-Magness and Gary Magness, Producers',
+  'Luis Buñuel, Jean-Claude Carrière',
+  'Marc-Andreas Bochert, Gabriele Lins',
+  'Marianne Farley and Marie-Hélène Panisset',
+  'Marianne Jean-Baptiste',
+  'Marie-Ange Luciani and David Thion, Producers',
+  'Marie-Christine Barrault',
+  'Marilyn Vance-Straker',
+  'Martin Strange-Hansen and Kim Magnusson',
+  'Martin Strange-Hansen, Mie Andreasen',
+  'Metro-Goldwyn-Mayer',
+  'Metro-Goldwyn-Mayer British Studio Sound Department, A. W. Watkins, Sound Director; and Metro-Goldwyn-Mayer Studio Sound Department, Franklin E. Milton, Sound Director',
+  'Metro-Goldwyn-Mayer London Studio Sound Department, A. W. Watkins, Sound Director',
+  'Metro-Goldwyn-Mayer Studio Music Department, Nat W. Finston, head of department  (Score by Herbert Stothart)',
+  'Metro-Goldwyn-Mayer Studio Sound Department',
+  'Metro-Goldwyn-Mayer Studio Sound Department, A. W. Watkins, Sound Director',
+  'Metro-Goldwyn-Mayer Studio Sound Department, Douglas Shearer, Sound Director',
+  'Metro-Goldwyn-Mayer Studio Sound Department, Dr. Wesley C. Miller, Sound Director',
+  'Metro-Goldwyn-Mayer Studio Sound Department, Franklin E. Milton, Sound Director',
+  'Metro-Goldwyn-Mayer Studio Sound Department, Wesley C. Miller, Sound Director',
+  'Metro-Goldwyn-Mayer for its achievement in representing the American Way of Life in the production of the Andy Hardy" series of films."',
+  'Michèle Burke, Jean-Pierre Eychenne',
+  'Mike Le-Mare',
+  'Milan Bor, Trevor Pyke, Mike Le-Mare',
+  'Monsieur Vincent - voted by the Academy Board of Governors as the most outstanding foreign language film released in the United States during 1948.',
+  'Mstyslav Chernov, Michelle Mizner and Raney Aronson-Rath',
+  'Music and Lyric by DIXSON and Beyoncé Knowles-Carter',
+  'Music and Lyric by Kristen Anderson-Lopez and Robert Lopez',
+  'Music and Lyric by Lin-Manuel Miranda',
+  'Music by Claude-Michel Schönberg; Lyric by Herbert Kretzmer and Alain Boublil',
+  'Music by Jack Nitzsche and Buffy Sainte-Marie; Lyric by Will Jennings',
+  'Oliver Marsh and Allen Davey for the color cinematography of the Metro-Goldwyn-Mayer production',
+  'Orry-Kelly',
+  'Orry-Kelly, Walter Plunkett, Irene Sharaff',
+  'Pablo Helman, Leandro Estebecorena, Nelson Sepulveda-Fauser and Stephane Grabli',
+  'Peter Capaldi, Ruth Kenley-Letts',
+  'Philippe Pollet-Villard',
+  'Production Design: David Wasco; Set Decoration: Sandy Reynolds-Wasco',
+  'Production Design: Eve Stewart; Set Decoration: Anna Lynch-Robinson',
+  'Rashomon - voted by the Board of Governors as the most outstanding foreign language film released in the United States during 1951.',
+  'Richard Francis-Bruce',
+  'Rob Bottin, Peter Robb-King',
+  'Robert Knudson, Robert J. Glass, Richard Tyler, Jean-Louis Ducarme',
+  'Sam Mendes, Pippa Harris, Jayne-Ann Tenggren and Callum McDougall, Producers',
+  'Samuel Goldwyn - United Artists Studio Sound Department',
+  'Samuel Goldwyn Studio Sound Department, Gordon E. Sawyer, Sound Director; and Todd-AO Sound Department, Fred Hynes, Sound Director',
+  'Screenplay - Edward Berger, Lesley Paterson & Ian Stokell',
+  'Screenplay - Justine Triet and Arthur Harari',
+  'Screenplay by Guillaume Laurant and Jean-Pierre Jeunet; Dialogue by Guillaume Laurant',
+  'Sergio Lopez-Rivera, Mia Neal and Jamika Wilson',
+  'Sharmeen Obaid-Chinoy',
+  'Shoe-Shine - the high quality of this motion picture',
+  'Shui-Bo Wang, Donald McWilliams',
+  'Simon Channing-Williams, Producer',
+  'St. Francis-Xavier University, Antigonish, Nova Scotia',
+  'Story and Screenplay by Jean-Charles Tacchella;  Adaptation by Daniele Thompson',
+  'Story and Screenplay by Luis Buñuel;  in collaboration with Jean-Claude Carrière',
+  'The Bicycle Thief - voted by the Academy Board of Governors as the most outstanding foreign language film released in the United States during 1949.',
+  'The March of Time for its significance to motion pictures and for having revolutionized one of the most important branches of the industry - the newsreel.',
+  'The Motion Picture Relief Fund - acknowledging the outstanding services to the industry during the past year of the Motion Picture Relief Fund and its progressive leadership.  Presented to Jean Hersholt',
+  'The Walls of Malapaga - voted by the Board of Governors as the most outstanding foreign language film released in the United States in 1950.',
+  'To Ryan Laney for his innovative adaptation and deployment of AI-driven facial veiling technology used to protect the identities while preserving the visual relatability of subjects in documentary filmmaking as exemplified in Welcome to Chechnya (2020).',
+  'Todd-AO Sound Department, Fred Hynes, Sound Director',
+  'Todd-AO Sound Department, Fred Hynes, Sound Director; and Samuel Goldwyn Studio Sound Department, Gordon E. Sawyer, Sound Director',
+  'Tom Burman, Bari Dreiband-Burman',
+  'Tony Pierce-Roberts',
+  'Ulla-Britt Soderlund, Milena Canonero',
+  'Van Nest Polglase, Mark-Lee Kirk',
+  'Vincent René-Lortie and Samuel Caron',
+  'Vincenzo Lucci-Chiarissi, Producer',
+  'Vivienne Verdon-Roe and Eric Thiermann, Producers',
+  'Vivienne Verdon-Roe, Producer',
+  'Waad al-Kateab and Edward Watts',
+  'William Tuttle for his outstanding make-up achievement for 7 Faces of Dr. Lao.',
+  'Wim Wenders and Gian-Piero Ringel',
+  'Written by Sam Mendes & Krysty Wilson-Cairns',
+  'Yi Seung-Jun and Gary Byung-Seok Kam',
+  'Yuh-Jung Youn',
+  'the Technicolor Company for its contributions in successfully bringing three-color feature production to the screen.'
+db.oscar.distinct("nome_do_indicado", { nome_do_indicado: /-/ })
+
+# 13.3 Encontre todas as cerimônias onde houve empate (múltiplos vencedores na mesma categoria no mesmo ano).
+R:  _id: {
+    ano: 1932,
+    categoria: 'ACTOR'
+  },
+  filmes: [
+    'Dr. Jekyll and Mr. Hyde',
+    'The Champ'
+  ],
+  indicados: [
+    'Fredric March',
+    'Wallace Beery'
+     _id: {
+    ano: 1943,
+    categoria: 'DOCUMENTARY'
+  },
+  filmes: [
+    'Prelude to War',
+    'Moscow Strikes Back',
+    'The Battle of Midway',
+    'Kokoda Front Line!'
+  ],
+  indicados: [
+    'Artkino',
+    'United States Navy',
+    'United States Army Special Services',
+    'Australian News & Information Bureau'
+    _id: {
+    ano: 1950,
+    categoria: 'DOCUMENTARY (Short Subject)'
+  },
+  filmes: [
+    'So Much for So Little',
+    'A Chance to Live'
+  ],
+  indicados: [
+    'Edward Selzer, Producer',
+    'Richard de Rochemont, Producer'
+    _id: {
+    ano: 1969,
+    categoria: 'ACTRESS'
+  },
+  filmes: [
+    'The Lion in Winter',
+    'Funny Girl'
+  ],
+  indicados: [
+    'Katharine Hepburn',
+    'Barbra Streisand'
+    _id: {
+    ano: 1977,
+    categoria: 'SPECIAL ACHIEVEMENT AWARD (Visual Effects)'
+  },
+  filmes: [
+    'King Kong',
+    "Logan's Run"
+  ],
+  indicados: [
+    'L. B. Abbott, Glen Robinson, Matthew Yuricich',
+    'Carlo Rambaldi, Glen Robinson, Frank Van der Veer'
+  ]
+  _id: {
+    ano: 1987,
+    categoria: 'DOCUMENTARY (Feature)'
+  },
+  filmes: [
+    "Artie Shaw: Time Is All You've Got",
+    'Down and Out in America'
+  ],
+  indicados: [
+    'Brigitte Berman, Producer',
+    'Joseph Feury and Milton Justice, Producers'
+  ]
+  _id: {
+    ano: 1995,
+    categoria: 'SHORT FILM (Live Action)'
+  },
+  filmes: [
+    'Trevor',
+    "Franz Kafka's It's a Wonderful Life"
+  ],
+  indicados: [
+    'Peter Capaldi, Ruth Kenley-Letts',
+    'Peggy Rajski, Randy Stone'
+    _id: {
+    ano: 2013,
+    categoria: 'SOUND EDITING'
+  },
+  filmes: [
+    'Skyfall',
+    'Zero Dark Thirty'
+  ],
+  indicados: [
+    'Per Hallberg and Karen Baker Landers',
+    'Paul N.J. Ottosson'
+    _id: {
+    ano: 2026,
+    categoria: 'SHORT FILM (Live Action)'
+  },
+  filmes: [
+    'Two People Exchanging Saliva',
+    'The Singers'
+  ],
+  indicados: [
+    'Two People Exchanging Saliva',
+    'The Singers'
+    
+db.oscar.aggregate([
+  { $match: { vencedor: venceu, ficticio: { $ne: true } } },
+  { $group: {
+      _id: { ano: "$ano_cerimonia", categoria: "$categoria" },
+      filmes: { $addToSet: "$nome_do_filme" },
+      indicados: { $addToSet: "$nome_do_indicado" }
+  } },
+  { $match: { $expr: { $and: [
+      { $gt: [{ $size: "$filmes" }, 1] },
+      { $gt: [{ $size: "$indicados" }, 1] }
+  ] } } },
+  { $sort: { "_id.ano": 1 } }
+])
+
+# 13.4 Crie uma query que simule uma "loteria" - selecione 5 filmes aleatórios que ganharam Melhor Filme.
+R: _id: {
+    filme: 'The Godfather Part II',
+    ano: 1975
+      _id: {
+    filme: 'The Sound of Music',
+    ano: 1966
+  }
+    _id: {
+    filme: 'Nomadland',
+    ano: 2021
+  }
+    _id: {
+    filme: 'Rebecca',
+    ano: 1941
+     _id: {
+    filme: 'Titanic',
+    ano: 1998
+
+    db.oscar.aggregate([
+  { $match: { categoria: { $in: pic }, vencedor: venceu, ficticio: { $ne: true } } },
+  { $group: { _id: { filme: "$nome_do_filme", ano: "$ano_cerimonia" } } },
+  { $sample: { size: 5 } }
+])
+
+# 13.5 Encontre padrões nos nomes dos filmes vencedores (ex: quantos têm uma palavra só, duas palavras, etc.).
+R: QUANTIDADE DE PALABRAS:
+  _id: 1,
+  filmes: 353
+   _id: 2,
+  filmes: 347
+  _id: 3,
+  filmes: 364
+   _id: 4,
+  filmes: 183
+  _id: 5,
+  filmes: 113
+   _id: 6,
+  filmes: 55
+  _id: 7,
+  filmes: 13
+
+db.oscar.aggregate([
+  { $match: { vencedor: venceu, nome_do_filme: { $type: "string" }, ficticio: { $ne: true } } },
+  { $group: { _id: { filme: "$nome_do_filme", ano: "$ano_cerimonia" } } },
+  { $addFields: { palavras: { $size: { $split: [{ $trim: { input: "$_id.filme" } }, " "] } } } },
+  { $group: { _id: "$palavras", filmes: { $sum: 1 } } },
+  { $sort: { _id: 1 } }
+])
 
 
+PALAVRA DE ABERTURA MAIS COMUM
+
+  _id: 'The',
+  filmes: 330
+    _id: 'A',
+  filmes: 42
+    _id: 'Black',
+  filmes: 9
+    _id: 'All',
+  filmes: 9
+   _id: 'In',
+  filmes: 8
+    _id: 'My',
+  filmes: 7
+    _id: 'One',
+  filmes: 7
+    _id: 'La',
+  filmes: 6
+    _id: 'King',
+  filmes: 6
+
+db.oscar.aggregate([
+  { $match: { vencedor: venceu, nome_do_filme: { $type: "string" }, ficticio: { $ne: true } } },
+  { $group: { _id: { filme: "$nome_do_filme", ano: "$ano_cerimonia" } } },
+  { $addFields: { primeira: { $arrayElemAt: [{ $split: ["$_id.filme", " "] }, 0] } } },
+  { $group: { _id: "$primeira", filmes: { $sum: 1 } } },
+  { $sort: { filmes: -1 } },
+  { $limit: 10 }
+])
+Desafio Final: Dashboard Completo
+# 14.1 Crie UMA ÚNICA query de agregação que retorne um dashboard executivo com:
+
+Total de indicações
+Total de cerimônias
+Total de vencedores
+Categoria com mais indicações
+Filme mais premiado
+Ator/atriz mais indicado(a)
+Década com mais premiações
+Número de categorias únicas
+
+R:
+total_indicacoes: 11134,
+  total_cerimonias: 98,
+  total_vencedores: 2512,
+  categorias_unicas: 116,
+  categoria_com_mais_indicacoes: {
+    _id: 'DIRECTING',
+    indicacoes: 479
+  },
+  filme_mais_premiado: {
+    _id: {
+      filme: 'Titanic',
+      ano: 1998
+    },
+    oscars: 11
+  },
+  ator_mais_indicado: {
+    _id: 'Meryl Streep',
+    indicacoes: 21
+  },
+  decada_com_mais_premiacoes: {
+    _id: 1950,
+    premiacoes: 275
+  }
+}
+
+db.oscar.aggregate([
+
+  { $match: { ficticio: { $ne: true }, categoria: { $ne: "BEST INTERNATIONAL FEATURE FILM" } } },
+  { $addFields: { ganhou: { $cond: [{ $in: ["$vencedor", [1, true]] }, 1, 0] } } },
+
+  { $facet: {
+
+    totais: [
+      { $group: {
+          _id: null,
+          indicacoes: { $sum: 1 },
+          vencedores: { $sum: "$ganhou" },
+          cerimonias: { $addToSet: "$cerimonia" },
+          categorias: { $addToSet: "$categoria" }
+      } },
+      { $project: {
+          _id: 0,
+          total_indicacoes: "$indicacoes",
+          total_vencedores: "$vencedores",
+          total_cerimonias: { $size: "$cerimonias" },
+          categorias_unicas: { $size: "$categorias" }
+      } }
+    ],
+
+    categoria_com_mais_indicacoes: [
+      { $group: { _id: "$categoria", indicacoes: { $sum: 1 } } },
+      { $sort: { indicacoes: -1 } },
+      { $limit: 1 }
+    ],
+
+    filme_mais_premiado: [
+      { $match: { ganhou: 1, nome_do_filme: { $ne: null } } },
+      { $group: { _id: { filme: "$nome_do_filme", ano: "$ano_cerimonia", categoria: "$categoria" } } },
+      { $group: { _id: { filme: "$_id.filme", ano: "$_id.ano" }, oscars: { $sum: 1 } } },
+      { $sort: { oscars: -1 } },
+      { $limit: 1 }
+    ],
+
+    ator_mais_indicado: [
+      { $match: { categoria: /^ACT(OR|RESS)/ } },
+      { $group: { _id: "$nome_do_indicado", indicacoes: { $sum: 1 } } },
+      { $sort: { indicacoes: -1 } },
+      { $limit: 1 }
+    ],
+
+    decada_com_mais_premiacoes: [
+      { $match: { ganhou: 1 } },
+      { $group: { _id: { ano: "$ano_cerimonia", categoria: "$categoria" } } },
+      { $group: {
+          _id: { $subtract: ["$_id.ano", { $mod: ["$_id.ano", 10] }] },
+          premiacoes: { $sum: 1 }
+      } },
+      { $sort: { premiacoes: -1 } },
+      { $limit: 1 }
+    ]
+  } },
+
+
+  { $project: {
+      total_indicacoes:  { $arrayElemAt: ["$totais.total_indicacoes", 0] },
+      total_cerimonias:  { $arrayElemAt: ["$totais.total_cerimonias", 0] },
+      total_vencedores:  { $arrayElemAt: ["$totais.total_vencedores", 0] },
+      categorias_unicas: { $arrayElemAt: ["$totais.categorias_unicas", 0] },
+      categoria_com_mais_indicacoes: { $arrayElemAt: ["$categoria_com_mais_indicacoes", 0] },
+      filme_mais_premiado:           { $arrayElemAt: ["$filme_mais_premiado", 0] },
+      ator_mais_indicado:            { $arrayElemAt: ["$ator_mais_indicado", 0] },
+      decada_com_mais_premiacoes:    { $arrayElemAt: ["$decada_com_mais_premiacoes", 0] }
+  } }
+])
